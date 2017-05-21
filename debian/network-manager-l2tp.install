@@ -1,0 +1,6 @@
+etc/
+usr/lib/pppd/*/*.so
+usr/lib/NetworkManager/VPN/nm-l2tp-service.name
+usr/lib/NetworkManager/nm-l2tp-service
+usr/lib/*/NetworkManager/libnm-vpn-plugin-l2tp.so
+usr/share/locale/

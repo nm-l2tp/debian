@@ -1,0 +1,31 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: NetworkManager-l2tp
+Source: https://github.com/nm-l2tp/network-manager-l2tp
+
+Files: *
+Copyright: 2008 - 2014 Red Hat, Inc.
+           2007 - 2008 Novell, Inc.
+           2014 Nathan Dorfman <ndorf@rtfm.net>
+           2012 Sergey Prokhorov <me@seriyps.ru>
+           2011 Alexey Torkhov <atorkhov@gmail.com>
+           2011 Geo Carncross <geocar@gmail.com>
+           2008 Dan Williams <dcbw@redhat.com>
+License: GPL-2+
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
