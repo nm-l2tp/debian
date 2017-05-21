@@ -1,0 +1,39 @@
+=======================================================
+NetworkManager-l2tp-1.2.6
+Overview of changes since network-manager-l2tp-1.2.6
+=======================================================
+
+This is a new stable release of NetworkManager-l2tp.  Notable changes include:
+
+* If L2TP port 1701 is already in use, no longer writes
+  "leftprotoport=udp/l2tp" (which is equivalent to "leftprotoport=udp/1701") to
+  the ipsec config file. This was done to ensures L2TP is encapsulated in IPsec
+* Uses UUID instead of PID for run-time generated filenames
+* No longer temporarily replaces stsem /etc/ipsec.secrets file
+* IPsec rekeying is now possible because the following file remains for the
+  lifetime of the VPN connection :
+    /etc/ipsec.d/nm-l2tp-ipsec-UUID.secrets
+* Following line is appended to /etc/ipsec.secrets if the include line is
+  missing:
+    include /etc/ipsec.d/*.secrets
+* Removed IPsec Group Name from user interface
+* Added IPsec Phase 1 (ike) & Phase 2 (esp) to user interface
+* New timeout code for IPsec connection up script.
+
+=======================================================
+NetworkManager-l2tp-1.2.4
+Overview of changes since network-manager-l2tp-1.2.2
+=======================================================
+
+This is a new stable release of NetworkManager-l2tp.  Notable changes include:
+
+* Prefer building against stable libsecret API
+* Split libnm-vpn-plugin-l2tp.so into a GTK-free core plugin
+  usable by nmcli and a UI plugin for nm-applet and gnome components
+* Successfully builds on 32bit Linux 
+* Explicitly check strongSwan connection has been established
+  and not trust use exit status of strongSwan 'ipsec up' command
+* Support weaker initial proposals on later versions of strongSwan
+* Support IP addresses for IPsec leftid and rightid
+* 10 second timeout for ipsec starter process
+
