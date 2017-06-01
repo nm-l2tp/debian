@@ -3,7 +3,6 @@ Section: net
 Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper (>= 10),
-               dh-autoreconf,
                intltool,
                network-manager-dev (>= 1.2.0),
                libnm-util-dev (>= 1.2.0),
@@ -13,7 +12,6 @@ Build-Depends: debhelper (>= 10),
                libnm-dev (>= 1.2.0),
                libnma-dev (>= 1.2.0),
                ppp-dev (>= 2.4.7-1+1),
-               libdbus-glib-1-dev (>= 0.74),
                libsecret-1-dev (>= 0.18),
                libgtk-3-dev (>= 3.4),
                libglib2.0-dev (>= 2.32)
@@ -29,8 +27,6 @@ Depends: ${shlibs:Depends},
          network-manager (>= 1.2.0),
          xl2tpd,
          strongswan
-Breaks: network-manager-l2tp-gnome (<< 1.2.4)
-Replaces: network-manager-l2tp-gnome (<< 1.2.4)
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when

@@ -5,7 +5,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 PPPD_PLUGIN_DIR := $(shell dh_ppp --plugin-dir)
 
 %:
-	dh $@ --with autoreconf,ppp
+	dh $@ --with ppp
 
 override_dh_autoreconf:
 	dh_autoreconf
