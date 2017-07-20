@@ -20,8 +20,8 @@
  * Copyright 2008, 2014 Red Hat, Inc.
  */
 
-#ifndef NM_PPTP_SERVICE_DEFINES_H
-#define NM_PPTP_SERVICE_DEFINES_H
+#ifndef NM_L2TP_SERVICE_DEFINES_H
+#define NM_L2TP_SERVICE_DEFINES_H
 
 #define NM_DBUS_SERVICE_L2TP    "org.freedesktop.NetworkManager.l2tp"
 
@@ -69,4 +69,4 @@
 #define NM_L2TP_KEY_IPSEC_ESP         "ipsec-esp"
 #define NM_L2TP_KEY_IPSEC_FORCEENCAPS "ipsec-forceencaps"
 
-#endif /* __NM_SERVICE_DEFINES_H__ */
+#endif /* NM_L2TP_SERVICE_DEFINES_H */

@@ -26,7 +26,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          network-manager (>= 1.2.0),
          xl2tpd,
-         strongswan
+         strongswan | libreswan
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when

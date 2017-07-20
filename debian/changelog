@@ -1,3 +1,11 @@
+network-manager-l2tp (1.2.8-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Replaced depends strongswan with depends strongswan | libreswan.
+  * Updated copyright file.
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Thu, 20 Jul 2017 23:00:00 +1000
+
 network-manager-l2tp (1.2.6-2) unstable; urgency=medium
 
   * Drop obsolete Build-Depends on libdbus-glib-1-dev.

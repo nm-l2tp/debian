@@ -1,20 +1,17 @@
-# Chinese (Hong Kong) translation of Network Manager.
-# Copyright (C) 2005 Free Software Foundation, Inc.
-# Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2008, 2009.
-# Wei-Lun Chao <chaoweilun@gmail.com>, 2010.
-#
 msgid ""
 msgstr ""
-"Project-Id-Version: Network Manager-l2tp 0.8.1\n"
+"Project-Id-Version: network-manager-l2tp\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-15 22:33+1000\n"
-"PO-Revision-Date: 2011-01-25 19:41+0800\n"
-"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
-"Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
-"Language: zh_HK\n"
+"PO-Revision-Date: 2015-02-04 16:06+0000\n"
+"Last-Translator: Samir Ribić <Unknown>\n"
+"Language-Team: Bosnian <bs@li.org>\n"
+"Language: bs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2015-02-05 06:50+0000\n"
+"X-Generator: Launchpad (build 17331)\n"
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:1
 msgid "L2TP VPN Client"
@@ -31,7 +28,7 @@ msgstr ""
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:4
 #, fuzzy
 msgid "Compatible with L2TP and L2TP over IPsec services."
-msgstr "兼容於 Microsoft 與其他 L2TP VPN 伺服器。"
+msgstr "Kompatibilno ss Microsoft i drugim L2TP VPN serverima."
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:5
 msgid "The PPP options dialog"
@@ -47,27 +44,28 @@ msgstr ""
 #: ../auth-dialog/main.c:146
 #, c-format
 msgid "You need to authenticate to access the Virtual Private Network '%s'."
-msgstr "你需要通過驗證才能存取虛擬私有網絡「%s」。"
+msgstr ""
+"Trebate provjeriti atutentičnost za pristup virtuelnoj privatnoj mreži '%s'."
 
 #: ../auth-dialog/main.c:155 ../auth-dialog/main.c:175
 msgid "Authenticate VPN"
-msgstr "驗證 VPN"
+msgstr "Autentificiraj VPN"
 
 #: ../auth-dialog/main.c:157 ../properties/nm-l2tp-dialog.ui.h:25
 msgid "Password:"
-msgstr "密碼:"
+msgstr "Lozinka:"
 
 #: ../properties/advanced-dialog.c:172
 msgid "All Available (Default)"
-msgstr "所有可用的（預設值）"
+msgstr "Sve dostupne (Podrazumijevano)"
 
 #: ../properties/advanced-dialog.c:176
 msgid "128-bit (most secure)"
-msgstr "128-位元（最安全）"
+msgstr "128-bit (najsigurnija)"
 
 #: ../properties/advanced-dialog.c:185
 msgid "40-bit (less secure)"
-msgstr "40-位元（較不安全）"
+msgstr "40-bit (manje sigurno)"
 
 #: ../properties/advanced-dialog.c:289
 msgid "PAP"
@@ -121,14 +119,14 @@ msgid "Property '%s' value '%s' can't be parsed as route metric."
 msgstr ""
 
 #: ../properties/import-export.c:340
-#, c-format
+#, fuzzy, c-format
 msgid "Error parsing property '%s' value '%s'."
-msgstr ""
+msgstr "neobrađeno svojstvo '%s' tipa %s"
 
 #: ../properties/import-export.c:362
-#, c-format
+#, fuzzy, c-format
 msgid "Error parsing property '%s': %s."
-msgstr ""
+msgstr "neobrađeno svojstvo '%s' tipa %s"
 
 #: ../properties/import-export.c:397
 #, c-format
@@ -147,9 +145,9 @@ msgid ""
 msgstr ""
 
 #: ../properties/import-export.c:698
-#, c-format
+#, fuzzy, c-format
 msgid "Missing required property '%s'"
-msgstr ""
+msgstr "Nedostaje potebna opcija '%s'."
 
 #: ../properties/import-export.c:728
 #, c-format
@@ -159,11 +157,11 @@ msgstr ""
 #: ../properties/nm-l2tp-editor-plugin.c:36
 #, fuzzy
 msgid "Layer 2 Tunneling Protocol (L2TP)"
-msgstr "點對點穿隧通訊協定 (L2TP)"
+msgstr "Point-to-Point tunelski protokol (L2TP)"
 
 #: ../properties/nm-l2tp-editor-plugin.c:37
 msgid "Compatible with Microsoft and other L2TP VPN servers."
-msgstr "兼容於 Microsoft 與其他 L2TP VPN 伺服器。"
+msgstr "Kompatibilno ss Microsoft i drugim L2TP VPN serverima."
 
 #: ../properties/nm-l2tp-editor.c:146
 #, c-format
@@ -260,45 +258,45 @@ msgstr ""
 #: ../src/nm-l2tp-service.c:307
 #, c-format
 msgid "invalid gateway '%s'"
-msgstr ""
+msgstr "nevažeći mrežni izlaz '%s'"
 
 #: ../src/nm-l2tp-service.c:316
-#, c-format
+#, fuzzy, c-format
 msgid "invalid ipsec-gateway-id '%s'"
-msgstr ""
+msgstr "nevažeći mrežni izlaz '%s'"
 
 #: ../src/nm-l2tp-service.c:329
 #, c-format
 msgid "invalid integer property '%s'"
-msgstr ""
+msgstr "nevažeće cjelobrojno svojstvo'%s'"
 
 #: ../src/nm-l2tp-service.c:339
 #, c-format
 msgid "invalid boolean property '%s' (not yes or no)"
-msgstr ""
+msgstr "nevažeće bulovo svojstvo '%s' (nije da ili ne)"
 
 #: ../src/nm-l2tp-service.c:346
 #, c-format
 msgid "unhandled property '%s' type %s"
-msgstr ""
+msgstr "neobrađeno svojstvo '%s' tipa %s"
 
 #: ../src/nm-l2tp-service.c:357
 #, c-format
 msgid "property '%s' invalid or not supported"
-msgstr ""
+msgstr "svojstvo '%s' nevažeće ili nije podržano"
 
 #: ../src/nm-l2tp-service.c:375
 msgid "No VPN configuration options."
-msgstr ""
+msgstr "Nema VPN konfiguracijskih opcija."
 
 #: ../src/nm-l2tp-service.c:395
 #, c-format
 msgid "Missing required option '%s'."
-msgstr ""
+msgstr "Nedostaje potebna opcija '%s'."
 
 #: ../src/nm-l2tp-service.c:415
 msgid "No VPN secrets!"
-msgstr ""
+msgstr "Nema VPN tajni!"
 
 #: ../src/nm-l2tp-service.c:687
 #, c-format
@@ -336,28 +334,32 @@ msgid "Could not restart the ipsec service."
 msgstr ""
 
 #: ../src/nm-l2tp-service.c:1136
+#, fuzzy
 msgid "Could not find the xl2tpd binary."
-msgstr ""
+msgstr "Ne mogu naći xl2tpd program."
 
 #: ../src/nm-l2tp-service.c:1202
 msgid "Missing VPN username."
-msgstr ""
+msgstr "Nedostaje VPN korisničko ime."
 
 #: ../src/nm-l2tp-service.c:1211
 msgid "Missing or invalid VPN password."
-msgstr ""
+msgstr "Neodstaje ili ne važi VPN lozinka."
 
 #: ../src/nm-l2tp-service.c:1314
+#, fuzzy
 msgid "couldn't convert L2TP VPN gateway IP address."
-msgstr ""
+msgstr "ne mogu konvrtovati L2TP VPN izlaznu IP adresu '%s' (%d)"
 
 #: ../src/nm-l2tp-service.c:1327
+#, fuzzy
 msgid "couldn't look up L2TP VPN gateway IP address "
-msgstr ""
+msgstr "ne mogu pogledati L2TP VPN izlaznu IP adresu '%s' (%d)"
 
 #: ../src/nm-l2tp-service.c:1346
+#, fuzzy
 msgid "no usable addresses returned for L2TP VPN gateway "
-msgstr ""
+msgstr "nema upotrebljivih adresa vraćenih za L2TP VPN izlaz '%s'"
 
 #: ../src/nm-l2tp-service.c:1375
 msgid "Could not find the ipsec binary. Is Libreswan or strongSwan installed?"
@@ -373,29 +375,32 @@ msgstr ""
 
 #: ../src/nm-l2tp-service.c:1398
 msgid "Invalid or missing L2TP gateway."
-msgstr ""
+msgstr "Nevažeći ili nedostaje L2TP izlaz."
 
 #: ../src/nm-l2tp-service.c:1688
 msgid "Don't quit when VPN connection terminates"
-msgstr ""
+msgstr "Ne izlazi kada se VPN konekcija prekida"
 
 #: ../src/nm-l2tp-service.c:1689
 msgid "Enable verbose debug logging (may expose passwords)"
-msgstr ""
+msgstr "Omogući detaljno praćenje grešaka (može otkriti lozinke)"
 
 #: ../src/nm-l2tp-service.c:1690
 msgid "D-Bus name to use for this instance"
 msgstr ""
 
 #: ../src/nm-l2tp-service.c:1711
+#, fuzzy
 msgid ""
 "nm-l2tp-service provides L2TP VPN capability with optional IPsec support to "
 "NetworkManager."
 msgstr ""
+"nM-L2TP-servis pruža integrisane L2TP VPN mogućnosti (kompatibilan sa "
+"Microsoft i drugim implementacijama) za NetvorkManager."
 
 #: ../properties/nm-l2tp-dialog.ui.h:1
 msgid "L2TP IPsec Options"
-msgstr ""
+msgstr "L2TP IPsec Opcije"
 
 #: ../properties/nm-l2tp-dialog.ui.h:2
 msgid "_Enable IPsec tunnel to L2TP host"
@@ -403,12 +408,11 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:3
 msgid "General"
-msgstr "一般"
+msgstr "Opšte"
 
 #: ../properties/nm-l2tp-dialog.ui.h:4
-#, fuzzy
 msgid "Gateway ID:"
-msgstr "通訊閘(_G):"
+msgstr "ID mrežnog izlaza:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:5
 msgid ""
@@ -424,11 +428,11 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:10
 msgid "Phase2 Algorithms:"
-msgstr ""
+msgstr "Faza2Algoritmi;:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:11
 msgid "Phase1 Algorithms:"
-msgstr ""
+msgstr "Faza1Algoritmi;:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:12
 msgid "_Enforce UDP encapsulation"
@@ -437,21 +441,24 @@ msgstr ""
 #: ../properties/nm-l2tp-dialog.ui.h:13
 #, fuzzy
 msgid "Ad_vanced"
-msgstr "進階(_V)..."
+msgstr "Na_predno..."
 
 #: ../properties/nm-l2tp-dialog.ui.h:14
 msgid "_Gateway:"
-msgstr "通訊閘(_G):"
+msgstr "_Mrežni izlaz:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:15
+#, fuzzy
 msgid ""
 "L2TP server IP or name.\n"
 "config: xl2tpd lns parameter"
 msgstr ""
+"L2TP server IP ili ime.\n"
+"config: prvi parametar za l2tp"
 
 #: ../properties/nm-l2tp-dialog.ui.h:17
 msgid "Optional"
-msgstr "選擇性"
+msgstr "Opciono"
 
 #: ../properties/nm-l2tp-dialog.ui.h:18
 msgid ""
@@ -459,29 +466,36 @@ msgid ""
 "purposes.\n"
 "config: domain <domain>"
 msgstr ""
+"Dodaj ime domene <domain> na lokalni ime hosta za svrhu autentifikacije.\n"
+"config: domain <domain>"
 
 #: ../properties/nm-l2tp-dialog.ui.h:20
 msgid "Show password"
-msgstr "顯示密碼"
+msgstr "Prikaži lozinku"
 
 #: ../properties/nm-l2tp-dialog.ui.h:21
+#, fuzzy
 msgid "Password passed to PPPD when prompted for it."
-msgstr ""
+msgstr "Lozinka proslijeđena na L2TP kada je upitano za nju."
 
 #: ../properties/nm-l2tp-dialog.ui.h:22
+#, fuzzy
 msgid ""
 "Set the name used for authenticating the local system to the peer to "
 "<name>.\n"
 "config: xl2tpd name parameter"
 msgstr ""
+"Postavi ime korišteno za autentificiranje lokalnog sistema korisniku s "
+"imenom <name>.\n"
+"config: user <name>"
 
 #: ../properties/nm-l2tp-dialog.ui.h:24
 msgid "User name:"
-msgstr "使用者名稱:"
+msgstr "Korisničko ime:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:26
 msgid "NT Domain:"
-msgstr "NT 網域:"
+msgstr "NT Domena:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:27
 msgid "_IPsec Settings..."
@@ -493,33 +507,35 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:29
 msgid "Default"
-msgstr "預設值"
+msgstr "Podrazumijevano"
 
 #: ../properties/nm-l2tp-dialog.ui.h:30
 msgid "L2TP PPP Options"
-msgstr ""
+msgstr "Opcije provjere pošte"
 
 #: ../properties/nm-l2tp-dialog.ui.h:31
 msgid "Authentication"
-msgstr "驗證"
+msgstr "Autentifikacija"
 
 #: ../properties/nm-l2tp-dialog.ui.h:32
 msgid "Allow the following authentication methods:"
-msgstr "允許下列驗證方法："
+msgstr "DOpusti sljedeće metode provjere autentičnosti:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:33
 msgid ""
 "Allow/disable authentication methods.\n"
 "config: refuse-pap, refuse-chap, refuse-mschap, refuse-mschap-v2, refuse-eap"
 msgstr ""
+"Dopusti/onemogući metode autentifikacije.\n"
+"config: refuse-pap, refuse-chap, refuse-mschap, refuse-mschap-v2, refuse-eap"
 
 #: ../properties/nm-l2tp-dialog.ui.h:35
 msgid "Security and Compression"
-msgstr "安全性與壓縮"
+msgstr "Sigurnost i kompresija"
 
 #: ../properties/nm-l2tp-dialog.ui.h:36
 msgid "Use _Point-to-Point encryption (MPPE)"
-msgstr "使用點對點加密[MPPE](_P)"
+msgstr "Koriti _Point-to-Point šifrovanje (MPPE)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:37
 msgid ""
@@ -527,52 +543,62 @@ msgid ""
 "To enable this checkbox, select one or more of the MSCHAP authentication "
 "methods: MSCHAP or MSCHAPv2."
 msgstr ""
-"注意：MPPE 加密只能使用 MSCHAP 驗證方法。要啟用這個核取方塊，請選擇一個或更多"
-"的 MSCHAP 驗證方法：MSCHAP 或 MSCHAPv2。"
+"Napomena: MPPE šifrovanje je dostupno samo sa MSCHAP autentifikacijskim "
+"metodama. Da biste omogućili ovu kućicu, izaberite jednu ili više MSCHAP "
+"metoda potvrde identiteta: MSCHAP ili MSCHAPv2."
 
 #: ../properties/nm-l2tp-dialog.ui.h:38
 msgid "_Security:"
-msgstr "安全性(_S):"
+msgstr "_Bezbijednost:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:39
 msgid ""
 "Require the use of MPPE, with 40/128-bit encryption or all.\n"
 "config: require-mppe, require-mppe-128 or require-mppe-40"
 msgstr ""
+"Zahtijevaj upotrebu MPPE, sa 40/128-bit enkripcijom ili sve.\n"
+"config: require-mppe, require-mppe-128 or require-mppe-40"
 
 #: ../properties/nm-l2tp-dialog.ui.h:41
 msgid "Allow st_ateful encryption"
-msgstr "允許可設定狀態加密(_A)"
+msgstr "Dopusti šifrovanje s s_tanjima"
 
 #: ../properties/nm-l2tp-dialog.ui.h:42
 msgid ""
 "Allow MPPE to use stateful mode. Stateless mode is still attempted first.\n"
 "config: mppe-stateful (when checked)"
 msgstr ""
+"Dopusti da MPPE koristi režim s stanjima. Režim bez stanja se i dalje proba "
+"prvi.\n"
+"config: mppe-stateful (kada je izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:44
 msgid "Allow _BSD data compression"
-msgstr "允許 _BSD 資料壓縮"
+msgstr "Dozvoli _BSD pakovanje podataka"
 
 #: ../properties/nm-l2tp-dialog.ui.h:45
 msgid ""
 "Allow/disable BSD-Compress compression.\n"
 "config: nobsdcomp (when unchecked)"
 msgstr ""
+"Dopusti/onemogući BSD-Compress kompresiju.\n"
+"config: nobsdcomp (kada nije izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:47
 msgid "Allow _Deflate data compression"
-msgstr "允許 _Deflate 資料壓縮"
+msgstr "Dozvoli _Deflate pakovanje podataka"
 
 #: ../properties/nm-l2tp-dialog.ui.h:48
 msgid ""
 "Allow/disable Deflate compression.\n"
 "config: nodeflate (when unchecked)"
 msgstr ""
+"Dopusti/onemogući Deflate kompresiju.\n"
+"config: nodeflate (kada nije izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:50
 msgid "Use TCP _header compression"
-msgstr "使用 TCP 標頭壓縮(_H)"
+msgstr "Koristi _komprimovanje TCP zaglavlja"
 
 #: ../properties/nm-l2tp-dialog.ui.h:51
 msgid ""
@@ -580,42 +606,55 @@ msgid ""
 "transmit and the receive directions.\n"
 "config: novj (when unchecked)"
 msgstr ""
+"Dopusti/onemogući Van Jacobson TCP/IP kompresiju zaglavlja u pravcima slanja "
+"i prijema.\n"
+"config: novj (kada nije izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:53
 msgid "Use protocol _field compression negotiation"
 msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:54
+#, fuzzy
 msgid ""
 "Allow protocol field compression negotiation in both the receive and the "
 "transmit direction.\n"
 "config: nopcomp (when unchecked)"
 msgstr ""
+"Dopusti/onemogući Van Jacobson TCP/IP kompresiju zaglavlja u pravcima slanja "
+"i prijema.\n"
+"config: novj (kada nije izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:56
 #, fuzzy
 msgid "Use _Address/Control compression"
-msgstr "使用 TCP 標頭壓縮(_H)"
+msgstr "Koristi _komprimovanje TCP zaglavlja"
 
 #: ../properties/nm-l2tp-dialog.ui.h:57
+#, fuzzy
 msgid ""
 "Use Address/Control compression in both directions (send and receive).\n"
 "config: noaccomp (when unchecked)"
 msgstr ""
+"Dopusti/onemogući Van Jacobson TCP/IP kompresiju zaglavlja u pravcima slanja "
+"i prijema.\n"
+"config: novj (kada nije izabrano)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:59
 msgid "Echo"
-msgstr "回應"
+msgstr "Eho"
 
 #: ../properties/nm-l2tp-dialog.ui.h:60
 msgid "Send PPP _echo packets"
-msgstr "傳送 PPP _echo 封包"
+msgstr "Šalji PPP _eho pakete"
 
 #: ../properties/nm-l2tp-dialog.ui.h:61
 msgid ""
 "Send LCP echo-requests to find out whether peer is alive.\n"
 "config: lcp-echo-failure and lcp-echo-interval"
 msgstr ""
+"Pošalji LCP echo-requests da se vidi da li je saradnik aktivan.\n"
+"config: lcp-echo-failure i lcp-echo-interval"
 
 #: ../properties/nm-l2tp-dialog.ui.h:63
 msgid "Misc"

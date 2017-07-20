@@ -24,6 +24,7 @@
  * (C) Copyright 2011 Geo Carncross <geocar@gmail.com>
  * (C) Copyright 2012 Sergey Prokhorov <me@seriyps.ru>
  * (C) Copyright 2014 Nathan Dorfman <ndorf@rtfm.net>
+ * (C) Copyright 2016 - 2017 Douglas Kosovic <doug@uq.edu.au>
  */
 
 #include "nm-default.h"
@@ -58,8 +59,8 @@
 # define DIST_VERSION VERSION
 #endif
 
-#ifdef LOCALSTATEDIR
-# define RUNDIR LOCALSTATEDIR"/run"
+#ifdef RUNSTATEDIR
+# define RUNDIR RUNSTATEDIR
 #else
 # define RUNDIR "/var/run"
 #endif
@@ -175,7 +176,7 @@ nm_l2tp_ipsec_error(GError **error, const char *msg) {
 	g_set_error_literal (error,
 			NM_VPN_PLUGIN_ERROR,
 			NM_VPN_PLUGIN_ERROR_LAUNCH_FAILED,
-			_(msg));
+			msg);
 	return FALSE;
 }
 
@@ -427,7 +428,6 @@ l2tpd_watch_cb (GPid pid, gint status, gpointer user_data)
 	NML2tpPlugin *plugin = NM_L2TP_PLUGIN (user_data);
 	NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE (plugin);
 	guint error = 0;
-	char *filename;
 
 	if (WIFEXITED (status)) {
 		error = WEXITSTATUS (status);
@@ -448,35 +448,6 @@ l2tpd_watch_cb (GPid pid, gint status, gpointer user_data)
 	if(priv->ipsec_up) {
 		nm_l2tp_stop_ipsec (priv);
 	}
-
-	/* Cleaning up config files */
-	filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-%s.conf", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf (RUNDIR"/nm-l2tp-ppp-options-%s", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-control-%s", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-%s.pid", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf (RUNDIR"/nm-l2tp-ipsec-%s.conf", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf ("/etc/ipsec.d/nm-l2tp-ipsec-%s.secrets", priv->uuid);
-	unlink(filename);
-	g_free(filename);
-
-	filename = g_strdup_printf ("/etc/strongswan/ipsec.d/nm-l2tp-ipsec-%s.secrets", priv->uuid);
-	unlink(filename);
-	g_free(filename);
 
 	/* Must be after data->state is set since signals use data->state */
 	switch (error) {
@@ -660,6 +631,7 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
                       GError **error)
 {
 	NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE (plugin);
+	NMSettingIPConfig *s_ip4;
 	const char *secrets;
 	const char *ipsec_d;
 	const char *value;
@@ -712,12 +684,13 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 		if (!has_include) {
 			fd = open (secrets, O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR);
 			if (fd == -1) {
-				snprintf (errorbuf, sizeof(errorbuf), "Could not open %s", secrets);
+				snprintf (errorbuf, sizeof(errorbuf), _("Could not open %s"), secrets);
 				return nm_l2tp_ipsec_error(error, errorbuf);
 			}
 			fp = fdopen(fd, "a");
-			fprintf(fp, "\n# Following line was added by NetworkManager-l2tp\n");
-			fprintf(fp, "include %s/*.secrets\n",ipsec_d);
+			fprintf(fp, "\n");
+			fprintf(fp, _("# Following line was added by NetworkManager-l2tp"));
+			fprintf(fp, "\ninclude %s/*.secrets\n",ipsec_d);
 			fclose(fp);
 			close(fd);
 		}
@@ -727,7 +700,7 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 		g_free (filename);
 		if (fd == -1) {
 			snprintf (errorbuf, sizeof(errorbuf),
-					  "Could not write %s/nm-l2tp-ipsec-%s.secrets",
+					  _("Could not write %s/nm-l2tp-ipsec-%s.secrets"),
 					  ipsec_d, priv->uuid);
 			return nm_l2tp_ipsec_error(error, errorbuf);
 		}
@@ -757,16 +730,16 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 		fd = open (filename, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR);
 		g_free (filename);
 		if (fd == -1) {
-			return nm_l2tp_ipsec_error(error, "Could not write ipsec config.");
+			return nm_l2tp_ipsec_error(error, _("Could not write ipsec config."));
 		}
 
-		write_config_option (fd, 		"conn %s\n", priv->uuid);
-		write_config_option (fd, 		"  auto=add\n"
-							"  type=transport\n");
+		write_config_option (fd, "conn %s\n", priv->uuid);
+		write_config_option (fd, "  auto=add\n");
+		write_config_option (fd, "  type=transport\n");
 
-		write_config_option (fd, 		"  authby=secret\n"
-							"  keyingtries=0\n"
-							"  left=%%defaultroute\n");
+		write_config_option (fd, "  authby=secret\n");
+		write_config_option (fd, "  keyingtries=0\n");
+		write_config_option (fd, "  left=%%defaultroute\n");
 		if (l2tp_port_is_free) {
 			write_config_option (fd, "  leftprotoport=udp/l2tp\n");
 		}
@@ -809,7 +782,7 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 	g_free (filename);
 
 	if (fd == -1) {
-		return nm_l2tp_ipsec_error(error, "Could not write xl2tpd config.");
+		return nm_l2tp_ipsec_error(error, _("Could not write xl2tpd config."));
 	}
 
 	write_config_option (fd, "[global]\n");
@@ -859,7 +832,7 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 	g_free (filename);
 
 	if (fd == -1) {
-		return nm_l2tp_ipsec_error(error, "Could not write ppp options.");
+		return nm_l2tp_ipsec_error(error, _("Could not write ppp options."));
 	}
 
 	if (_LOGD_enabled ())
@@ -872,7 +845,12 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 	   but with xl2tpd-1.3.6, pppd wasn't creating a lock file under /var/run/lock/ anyway.
 	write_config_option (fd, "lock\n");
 	*/
-	write_config_option (fd, "usepeerdns\n");
+
+	s_ip4 = nm_connection_get_setting_ip4_config (priv->connection);
+	if (!nm_setting_ip_config_get_ignore_auto_dns (s_ip4)) {
+		write_config_option (fd, "usepeerdns\n");
+	}
+
 	write_config_option (fd, "noipdefault\n");
 	write_config_option (fd, "nodefaultroute\n");
 
@@ -978,7 +956,7 @@ nm_l2tp_stop_ipsec (NML2tpPluginPrivate *priv)
 			return;
 		}
 	} else {
-		snprintf (cmdbuf, sizeof(cmdbuf), "%s stop %s", priv->ipsec_binary_path, priv->uuid);
+		snprintf (cmdbuf, sizeof(cmdbuf), "%s stop", priv->ipsec_binary_path);
 		sys = system (cmdbuf);
 	}
 
@@ -1007,13 +985,13 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 			snprintf (cmdbuf, sizeof(cmdbuf), "%s start", priv->ipsec_binary_path);
 			sys = system (cmdbuf);
 			if (sys) {
-				return nm_l2tp_ipsec_error (error, "Could not start the ipsec service.");
+				return nm_l2tp_ipsec_error (error, _("Could not start the ipsec service."));
 			}
 		} else {
 			snprintf (cmdbuf, sizeof(cmdbuf), "%s restart", priv->ipsec_binary_path);
 			sys = system (cmdbuf);
 			if (sys) {
-				return nm_l2tp_ipsec_error (error, "Could not restart the ipsec service.");
+				return nm_l2tp_ipsec_error (error, _("Could not restart the ipsec service."));
 			}
 		}
 		/* wait for Libreswan to get ready before performing an up operation */
@@ -1032,7 +1010,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 				             priv->ipsec_binary_path, priv->uuid);
 			sys = system (cmdbuf);
 			if (sys) {
-				return nm_l2tp_ipsec_error(error, "Could not start the ipsec service.");
+				return nm_l2tp_ipsec_error(error, _("Could not start the ipsec service."));
 			}
 		} else {
 			snprintf (cmdbuf, sizeof(cmdbuf), "%s restart "
@@ -1040,7 +1018,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 				             priv->ipsec_binary_path, priv->uuid);
 			sys = system (cmdbuf);
 			if (sys) {
-				return nm_l2tp_ipsec_error(error, "Could not restart the ipsec service.");
+				return nm_l2tp_ipsec_error(error, _("Could not restart the ipsec service."));
 			}
 		}
 		/* wait for strongSwan to get ready before performing an up operation  */
@@ -1117,6 +1095,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 				} else {
 					/* Do not trust exit status of strongSwan 'ipsec up' command.
 					   explictly check if connection is established.
+					   strongSwan bug #1449.
 					*/
 					snprintf (cmdbuf, sizeof(cmdbuf), "%s status '%s'", priv->ipsec_binary_path, priv->uuid);
 					if (g_spawn_command_line_sync(cmdbuf, &output, NULL, NULL, NULL)) {
@@ -1132,6 +1111,10 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 	}
 
 	if (!rc) {
+		if (!priv->is_libreswan) {
+			snprintf (cmdbuf, sizeof(cmdbuf), "%s stop", priv->ipsec_binary_path);
+			sys = system (cmdbuf);
+		}
 		_LOGW ("Could not establish IPsec tunnel.");
 	}
 
@@ -1150,7 +1133,7 @@ nm_l2tp_start_l2tpd_binary (NML2tpPlugin *plugin,
 
 	l2tpd_binary = nm_find_l2tpd ();
 	if (!l2tpd_binary) {
-		return nm_l2tp_ipsec_error(error, "Could not find the xl2tpd binary.");
+		return nm_l2tp_ipsec_error(error, _("Could not find the xl2tpd binary."));
 	}
 
 	l2tpd_argv = g_ptr_array_new ();
@@ -1328,7 +1311,7 @@ lookup_gateway (NML2tpPlugin *self,
 	if (is_name == FALSE) {
 		errno = 0;
 		if (inet_pton (AF_INET, src, &naddr) <= 0) {
-			return nm_l2tp_ipsec_error(error, "couldn't convert L2TP VPN gateway IP address.");
+			return nm_l2tp_ipsec_error(error, _("couldn't convert L2TP VPN gateway IP address."));
 		}
 		priv->naddr = naddr.s_addr;
 		priv->saddr = g_strdup (src);
@@ -1341,7 +1324,7 @@ lookup_gateway (NML2tpPlugin *self,
 	hints.ai_flags = AI_ADDRCONFIG;
 	err = getaddrinfo (src, NULL, &hints, &result);
 	if (err != 0) {
-		return nm_l2tp_ipsec_error(error, "couldn't look up L2TP VPN gateway IP address ");
+		return nm_l2tp_ipsec_error(error, _("couldn't look up L2TP VPN gateway IP address "));
 	}
 
 	/* If the hostname resolves to multiple IP addresses, use the first one.
@@ -1360,7 +1343,7 @@ lookup_gateway (NML2tpPlugin *self,
 	freeaddrinfo (result);
 
 	if (naddr.s_addr == 0) {
-		return nm_l2tp_ipsec_error(error, "no usable addresses returned for L2TP VPN gateway ");
+		return nm_l2tp_ipsec_error(error, _("no usable addresses returned for L2TP VPN gateway "));
 	}
 
 	priv->naddr = naddr.s_addr;
@@ -1389,13 +1372,13 @@ real_connect (NMVpnServicePlugin *plugin,
 	priv->is_libreswan = TRUE;
 	if(value && !strcmp(value,"yes")) {
 		if (!(value=nm_find_ipsec ())) {
-			return nm_l2tp_ipsec_error(error, "Could not find the ipsec binary. Is Libreswan or strongSwan installed?");
+			return nm_l2tp_ipsec_error(error, _("Could not find the ipsec binary. Is Libreswan or strongSwan installed?"));
 		}
 		strncpy (priv->ipsec_binary_path, value, sizeof(priv->ipsec_binary_path));
 
 		priv->is_libreswan = check_is_libreswan (priv->ipsec_binary_path);
 		if (!priv->is_libreswan && !check_is_strongswan (priv->ipsec_binary_path)) {
-			return nm_l2tp_ipsec_error (error, "Neither Libreswan nor strongSwan were found.");
+			return nm_l2tp_ipsec_error (error, _("Neither Libreswan nor strongSwan were found."));
 		}
 	}
 
@@ -1404,7 +1387,7 @@ real_connect (NMVpnServicePlugin *plugin,
 
 	uuid = nm_connection_get_uuid (priv->connection);
 	if (!(uuid && *uuid)) {
-		return nm_l2tp_ipsec_error(error, "could not retrive connection UUID");
+		return nm_l2tp_ipsec_error(error, _("could not retrieve connection UUID"));
 	}
 
 	g_free (priv->uuid);
@@ -1412,7 +1395,7 @@ real_connect (NMVpnServicePlugin *plugin,
 
 	gwaddr = nm_setting_vpn_get_data_item (s_vpn, NM_L2TP_KEY_GATEWAY);
 	if (!gwaddr || !strlen (gwaddr)) {
-		return nm_l2tp_ipsec_error(error, "Invalid or missing L2TP gateway.");
+		return nm_l2tp_ipsec_error(error, _("Invalid or missing L2TP gateway."));
 	}
 
 	/* Look up the IP address of the L2TP server; if the server has multiple
@@ -1493,6 +1476,7 @@ ensure_killed (gpointer data)
 static gboolean
 real_disconnect (NMVpnServicePlugin *plugin, GError **err)
 {
+	char *filename;
 	NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE (plugin);
 
 	if (priv->pid_l2tpd) {
@@ -1513,6 +1497,37 @@ real_disconnect (NMVpnServicePlugin *plugin, GError **err)
 	if (priv->saddr) {
 		g_free (priv->saddr);
 		priv->saddr = NULL;
+	}
+
+	if (!gl.debug) {
+		/* Cleaning up config files */
+		filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-%s.conf", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf (RUNDIR"/nm-l2tp-ppp-options-%s", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-control-%s", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf (RUNDIR"/nm-l2tp-xl2tpd-%s.pid", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf (RUNDIR"/nm-l2tp-ipsec-%s.conf", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf ("/etc/ipsec.d/nm-l2tp-ipsec-%s.secrets", priv->uuid);
+		unlink(filename);
+		g_free(filename);
+
+		filename = g_strdup_printf ("/etc/strongswan/ipsec.d/nm-l2tp-ipsec-%s.secrets", priv->uuid);
+		unlink(filename);
+		g_free(filename);
 	}
 
 	return TRUE;
