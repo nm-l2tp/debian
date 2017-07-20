@@ -1,15 +1,31 @@
-AC_PREREQ(2.59)
+AC_PREREQ(2.60)
 
 AC_INIT(NetworkManager-l2tp,
-        1.2.6,
+        1.2.8,
         https://github.com/nm-l2tp/network-manager-l2tp/issues,
         NetworkManager-l2tp)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz])
 AM_MAINTAINER_MODE
+AM_SILENT_RULES([yes])
 
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CONFIG_HEADERS([config.h])
+
+AC_USE_SYSTEM_EXTENSIONS
+
+dnl
+dnl AC_SUBST runstatedir is for autoconf < 2.70 compatibilty
+dnl
+if test "x$runstatedir" = x; then
+	AC_SUBST([runstatedir], ['${localstatedir}/run'])
+fi
+
+dnl Prefer gcc-* variants; the ones libtool would choose don't work with LTO
+AC_CHECK_TOOLS(AR, [gcc-ar ar], false)
+AC_CHECK_TOOLS(RANLIB, [gcc-ranlib ranlib], :)
+
+LT_INIT([disable-static])
 
 dnl
 dnl Require programs
@@ -119,6 +135,8 @@ NM_VPN_SERVICE_DIR=`$PKG_CONFIG --define-variable prefix='\${prefix}' --variable
 AC_SUBST(NM_VPN_SERVICE_DIR)
 
 NM_COMPILER_WARNINGS
+NM_LTO
+NM_LD_GC
 
 NM_PLUGIN_DIR="$libdir/NetworkManager"
 AC_SUBST(NM_PLUGIN_DIR)
@@ -154,3 +172,6 @@ echo "  --with-gnome=$with_gnome"
 echo "  --with-libnm-glib=$with_libnm_glib"
 echo "  --enable-absolute-paths=$enable_absolute_paths"
 echo "  --enable-more-warnings=$set_more_warnings"
+echo "  --enable-lto=$enable_lto"
+echo "  --enable-ld-gc=$enable_ld_gc"
+echo ""

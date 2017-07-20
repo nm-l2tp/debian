@@ -204,7 +204,7 @@ import_ip4 (GKeyFile *keyfile, NMSettingIPConfig *s_ip4, GError **error)
 			struct in_addr addr;
 			if (!inet_aton (dnses[i], &addr)){
 				ip4_import_error (error,
-				                  _("Property '%s' value '%s' can't be parsed as ip adress."),
+				                  _("Property '%s' value '%s' can't be parsed as IP address."),
 				                  NM_SETTING_IP_CONFIG_DNS,
 				                  dnses[i]);
 				g_strfreev (dnses);
@@ -265,7 +265,7 @@ import_ip4 (GKeyFile *keyfile, NMSettingIPConfig *s_ip4, GError **error)
 
 			if (!inet_aton (dest_s, &dest)){
 				ip4_route_import_error (error,
-				                        _("Property '%s' value '%s' can't be parsed as ip adress."),
+				                        _("Property '%s' value '%s' can't be parsed as IP address."),
 				                        dest_s,
 				                        routes);
 				return FALSE;
@@ -282,7 +282,7 @@ import_ip4 (GKeyFile *keyfile, NMSettingIPConfig *s_ip4, GError **error)
 			prefix = strtol (prefix_s, NULL, 10);
 			if (errno != 0 || prefix <=0 || prefix > 32){
 				ip4_route_import_error (error,
-				                        _("Property '%s' value '%s' can't be parsed as ip netmask."),
+				                        _("Property '%s' value '%s' can't be parsed as IP netmask."),
 				                        prefix_s,
 				                        routes);
 				return FALSE;
@@ -303,7 +303,7 @@ import_ip4 (GKeyFile *keyfile, NMSettingIPConfig *s_ip4, GError **error)
 				}
 				if (!inet_aton (next_hop_s, &next_hop)){
 					ip4_route_import_error (error,
-					                        _("Property '%s' value '%s' can't be parsed as ip adress."),
+					                        _("Property '%s' value '%s' can't be parsed as IP address."),
 					                        next_hop_s,
 					                        routes);
 					return FALSE;

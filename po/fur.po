@@ -1,73 +1,78 @@
-# Chinese (Hong Kong) translation of Network Manager.
-# Copyright (C) 2005 Free Software Foundation, Inc.
-# Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2008, 2009.
-# Wei-Lun Chao <chaoweilun@gmail.com>, 2010.
+# Friulian translation for network-manager-l2tp.
+# Copyright (C) 2017 network-manager-l2tp's COPYRIGHT HOLDER
+# This file is distributed under the same license as the network-manager-l2tp package.
+# Fabio Tomat <f.t.public@gmail.com>, 2017.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Network Manager-l2tp 0.8.1\n"
+"Project-Id-Version: network-manager-l2tp master\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-15 22:33+1000\n"
-"PO-Revision-Date: 2011-01-25 19:41+0800\n"
-"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
-"Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
-"Language: zh_HK\n"
+"PO-Revision-Date: 2017-04-09 19:02+0200\n"
+"Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
+"Language-Team: Friulian <fur@li.org>\n"
+"Language: fur\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:1
+#, fuzzy
 msgid "L2TP VPN Client"
-msgstr ""
+msgstr "Client VPN L2TP"
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:2
+#, fuzzy
 msgid "Client for L2TP based virtual private networks"
-msgstr ""
+msgstr "Client pes rêts privadis virtuâls L2TP"
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:3
+#, fuzzy
 msgid "Support for configuring L2TP based virtual private network connections."
-msgstr ""
+msgstr "Supuart par configurâ conessions a rêt privadis virtuâls L2TP."
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:4
 #, fuzzy
 msgid "Compatible with L2TP and L2TP over IPsec services."
-msgstr "兼容於 Microsoft 與其他 L2TP VPN 伺服器。"
+msgstr "Compatibil cun Microsoft e altris servidôrs VPN L2TP."
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:5
 msgid "The PPP options dialog"
 msgstr ""
 
 #: ../appdata/network-manager-l2tp.metainfo.xml.in.h:6
+#, fuzzy
 msgid "The NetworkManager-L2TP Developers"
-msgstr ""
+msgstr "I svilupadôrs di NetworkManager"
 
 #. Otherwise, we have no saved password, or the password flags indicated
 #. * that the password should never be saved.
 #.
 #: ../auth-dialog/main.c:146
-#, c-format
+#, fuzzy, c-format
 msgid "You need to authenticate to access the Virtual Private Network '%s'."
-msgstr "你需要通過驗證才能存取虛擬私有網絡「%s」。"
+msgstr "Al covente autenticâsi par acedi ae rêt privade virtuâl “%s”."
 
 #: ../auth-dialog/main.c:155 ../auth-dialog/main.c:175
 msgid "Authenticate VPN"
-msgstr "驗證 VPN"
+msgstr "Autentiche VPN"
 
 #: ../auth-dialog/main.c:157 ../properties/nm-l2tp-dialog.ui.h:25
 msgid "Password:"
-msgstr "密碼:"
+msgstr "Password:"
 
 #: ../properties/advanced-dialog.c:172
 msgid "All Available (Default)"
-msgstr "所有可用的（預設值）"
+msgstr "Dutis lis disponibilis (Predefinît)"
 
 #: ../properties/advanced-dialog.c:176
 msgid "128-bit (most secure)"
-msgstr "128-位元（最安全）"
+msgstr "128-bit (plui sigure)"
 
 #: ../properties/advanced-dialog.c:185
 msgid "40-bit (less secure)"
-msgstr "40-位元（較不安全）"
+msgstr "40-bit (mancul sigure)"
 
 #: ../properties/advanced-dialog.c:289
 msgid "PAP"
@@ -147,9 +152,9 @@ msgid ""
 msgstr ""
 
 #: ../properties/import-export.c:698
-#, c-format
+#, fuzzy, c-format
 msgid "Missing required property '%s'"
-msgstr ""
+msgstr "E mancje la opzion necessarie “%s”."
 
 #: ../properties/import-export.c:728
 #, c-format
@@ -159,11 +164,11 @@ msgstr ""
 #: ../properties/nm-l2tp-editor-plugin.c:36
 #, fuzzy
 msgid "Layer 2 Tunneling Protocol (L2TP)"
-msgstr "點對點穿隧通訊協定 (L2TP)"
+msgstr "Protocol di tunel pont a pont (L2TP)"
 
 #: ../properties/nm-l2tp-editor-plugin.c:37
 msgid "Compatible with Microsoft and other L2TP VPN servers."
-msgstr "兼容於 Microsoft 與其他 L2TP VPN 伺服器。"
+msgstr "Compatibil cun Microsoft e altris servidôrs VPN L2TP."
 
 #: ../properties/nm-l2tp-editor.c:146
 #, c-format
@@ -208,28 +213,32 @@ msgstr ""
 #: ../shared/nm-utils/nm-shared-utils.c:185
 #, c-format
 msgid "object class '%s' has no property named '%s'"
-msgstr ""
+msgstr "la classe dal ogjet '%s' no à proprietâts clamadis '%s'"
 
 #: ../shared/nm-utils/nm-shared-utils.c:192
 #, c-format
 msgid "property '%s' of object class '%s' is not writable"
-msgstr ""
+msgstr "proprietât '%s' de classe dal ogjet '%s' no je scrivibile"
 
 #: ../shared/nm-utils/nm-shared-utils.c:199
 #, c-format
 msgid ""
 "construct property \"%s\" for object '%s' can't be set after construction"
 msgstr ""
+"impussibil stabilî la proprietât \"%s\" dal costrutôr pal ogjet '%s' dopo de "
+"costruzion"
 
 #: ../shared/nm-utils/nm-shared-utils.c:207
 #, c-format
 msgid "'%s::%s' is not a valid property name; '%s' is not a GObject subtype"
 msgstr ""
+"'%s::%s' nol è un non di proprietât valit; '%s' nol è un sot-gjenar GObject"
 
 #: ../shared/nm-utils/nm-shared-utils.c:216
 #, c-format
 msgid "unable to set property '%s' of type '%s' from value of type '%s'"
 msgstr ""
+"impussibil stabilî la proprietât '%s' di gjenar '%s' dal valôr di gjenar '%s'"
 
 #: ../shared/nm-utils/nm-shared-utils.c:227
 #, c-format
@@ -237,68 +246,70 @@ msgid ""
 "value \"%s\" of type '%s' is invalid or out of range for property '%s' of "
 "type '%s'"
 msgstr ""
+"il valôr \"%s\" di gjenar '%s' nol è valit o fûr dal interval pe proprietât "
+"'%s' di gjenar '%s'"
 
 #: ../shared/nm-utils/nm-vpn-plugin-utils.c:80
 #, c-format
 msgid "missing plugin file \"%s\""
-msgstr ""
+msgstr "al mancje il file plugin \"%s\""
 
 #: ../shared/nm-utils/nm-vpn-plugin-utils.c:86
 #, c-format
 msgid "cannot load editor plugin: %s"
-msgstr ""
+msgstr "impussibil cjariâ il plugin editôr: %s"
 
 #: ../shared/nm-utils/nm-vpn-plugin-utils.c:95
 #, c-format
 msgid "cannot load factory %s from plugin: %s"
-msgstr ""
+msgstr "impussibil cjariâ la fabriche %s dal plugin: %s"
 
 #: ../shared/nm-utils/nm-vpn-plugin-utils.c:121
 msgid "unknown error creating editor instance"
-msgstr ""
+msgstr "erôr no cognossût tal creâ la istance dal editôr"
 
 #: ../src/nm-l2tp-service.c:307
-#, c-format
+#, fuzzy, c-format
 msgid "invalid gateway '%s'"
-msgstr ""
+msgstr "gateway “%s” no valit"
 
 #: ../src/nm-l2tp-service.c:316
-#, c-format
+#, fuzzy, c-format
 msgid "invalid ipsec-gateway-id '%s'"
-msgstr ""
+msgstr "gateway “%s” no valit"
 
 #: ../src/nm-l2tp-service.c:329
-#, c-format
+#, fuzzy, c-format
 msgid "invalid integer property '%s'"
-msgstr ""
+msgstr "proprietât interie “%s” no valide"
 
 #: ../src/nm-l2tp-service.c:339
-#, c-format
+#, fuzzy, c-format
 msgid "invalid boolean property '%s' (not yes or no)"
-msgstr ""
+msgstr "proprietât booleane “%s” no valide  (no je sì o no)"
 
 #: ../src/nm-l2tp-service.c:346
-#, c-format
+#, fuzzy, c-format
 msgid "unhandled property '%s' type %s"
-msgstr ""
+msgstr "proprietât “%s” gjenar %s no tratade"
 
 #: ../src/nm-l2tp-service.c:357
-#, c-format
+#, fuzzy, c-format
 msgid "property '%s' invalid or not supported"
-msgstr ""
+msgstr "proprietât “%s” no valide o no supuartade"
 
 #: ../src/nm-l2tp-service.c:375
 msgid "No VPN configuration options."
-msgstr ""
+msgstr "Nissune opzion di configurazion VPN."
 
 #: ../src/nm-l2tp-service.c:395
-#, c-format
+#, fuzzy, c-format
 msgid "Missing required option '%s'."
-msgstr ""
+msgstr "E mancje la opzion necessarie “%s”."
 
 #: ../src/nm-l2tp-service.c:415
 msgid "No VPN secrets!"
-msgstr ""
+msgstr "Nissun segret VPN!"
 
 #: ../src/nm-l2tp-service.c:687
 #, c-format
@@ -336,28 +347,32 @@ msgid "Could not restart the ipsec service."
 msgstr ""
 
 #: ../src/nm-l2tp-service.c:1136
+#, fuzzy
 msgid "Could not find the xl2tpd binary."
-msgstr ""
+msgstr "Impussibil cjatâ il binari xl2tpd."
 
 #: ../src/nm-l2tp-service.c:1202
 msgid "Missing VPN username."
-msgstr ""
+msgstr "Al mancje il non utent VPN."
 
 #: ../src/nm-l2tp-service.c:1211
 msgid "Missing or invalid VPN password."
-msgstr ""
+msgstr "E mancje o no je valide la password VPN."
 
 #: ../src/nm-l2tp-service.c:1314
+#, fuzzy
 msgid "couldn't convert L2TP VPN gateway IP address."
-msgstr ""
+msgstr "impussibil convertî la direzion IP dal gateway VPN L2TP “%s” (%d)"
 
 #: ../src/nm-l2tp-service.c:1327
+#, fuzzy
 msgid "couldn't look up L2TP VPN gateway IP address "
-msgstr ""
+msgstr "impussibil cjatâ la direzion IP dal gateway VPN L2TP “%s” (%d)"
 
 #: ../src/nm-l2tp-service.c:1346
+#, fuzzy
 msgid "no usable addresses returned for L2TP VPN gateway "
-msgstr ""
+msgstr "nissune direzion doprabile tornade pal gateway VPN L2TP “%s”"
 
 #: ../src/nm-l2tp-service.c:1375
 msgid "Could not find the ipsec binary. Is Libreswan or strongSwan installed?"
@@ -373,29 +388,34 @@ msgstr ""
 
 #: ../src/nm-l2tp-service.c:1398
 msgid "Invalid or missing L2TP gateway."
-msgstr ""
+msgstr "gateway L2TP mancjant o no valit."
 
 #: ../src/nm-l2tp-service.c:1688
+#, fuzzy
 msgid "Don't quit when VPN connection terminates"
-msgstr ""
+msgstr "No stâ jessî cuant che e termine la conession VPN"
 
 #: ../src/nm-l2tp-service.c:1689
 msgid "Enable verbose debug logging (may expose passwords)"
-msgstr ""
+msgstr "Abilite regjistris di debug prolìs (al podarès esponi lis password)"
 
 #: ../src/nm-l2tp-service.c:1690
 msgid "D-Bus name to use for this instance"
-msgstr ""
+msgstr "Non D-Bus di doprâ par cheste istance"
 
 #: ../src/nm-l2tp-service.c:1711
+#, fuzzy
 msgid ""
 "nm-l2tp-service provides L2TP VPN capability with optional IPsec support to "
 "NetworkManager."
 msgstr ""
+"nm-l2tp-service al furnìs a NetworkManager lis capacitâts VPN L2TP "
+"integradis (compatibil cun Microsoft e altris implementazions)."
 
 #: ../properties/nm-l2tp-dialog.ui.h:1
+#, fuzzy
 msgid "L2TP IPsec Options"
-msgstr ""
+msgstr "Opzions avanzadis L2TP"
 
 #: ../properties/nm-l2tp-dialog.ui.h:2
 msgid "_Enable IPsec tunnel to L2TP host"
@@ -403,12 +423,12 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:3
 msgid "General"
-msgstr "一般"
+msgstr "Gjenerâl"
 
 #: ../properties/nm-l2tp-dialog.ui.h:4
 #, fuzzy
 msgid "Gateway ID:"
-msgstr "通訊閘(_G):"
+msgstr "_Gateway:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:5
 msgid ""
@@ -424,34 +444,36 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:10
 msgid "Phase2 Algorithms:"
-msgstr ""
+msgstr "Algoritmis fase2:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:11
 msgid "Phase1 Algorithms:"
-msgstr ""
+msgstr "Algoritmis fase1:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:12
 msgid "_Enforce UDP encapsulation"
 msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:13
-#, fuzzy
 msgid "Ad_vanced"
-msgstr "進階(_V)..."
+msgstr "A_vanzadis"
 
 #: ../properties/nm-l2tp-dialog.ui.h:14
 msgid "_Gateway:"
-msgstr "通訊閘(_G):"
+msgstr "_Gateway:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:15
+#, fuzzy
 msgid ""
 "L2TP server IP or name.\n"
 "config: xl2tpd lns parameter"
 msgstr ""
+"Non o IP servidôr L2TP.\n"
+"config: il prin parametri di l2tp"
 
 #: ../properties/nm-l2tp-dialog.ui.h:17
 msgid "Optional"
-msgstr "選擇性"
+msgstr "Opzionâl"
 
 #: ../properties/nm-l2tp-dialog.ui.h:18
 msgid ""
@@ -459,29 +481,35 @@ msgid ""
 "purposes.\n"
 "config: domain <domain>"
 msgstr ""
+"Zonte il non dal domini <domini> al non dal host locâl pe autenticazion.\n"
+"config: domain <domini>"
 
 #: ../properties/nm-l2tp-dialog.ui.h:20
 msgid "Show password"
-msgstr "顯示密碼"
+msgstr "Mostre password"
 
 #: ../properties/nm-l2tp-dialog.ui.h:21
+#, fuzzy
 msgid "Password passed to PPPD when prompted for it."
-msgstr ""
+msgstr "Password passade a L2TP cuant che e ven domandade."
 
 #: ../properties/nm-l2tp-dialog.ui.h:22
+#, fuzzy
 msgid ""
 "Set the name used for authenticating the local system to the peer to "
 "<name>.\n"
 "config: xl2tpd name parameter"
 msgstr ""
+"Stabilìs il non doprât par autenticâ il sisteme locâl al grop a <non>.\n"
+"config: user <non>"
 
 #: ../properties/nm-l2tp-dialog.ui.h:24
 msgid "User name:"
-msgstr "使用者名稱:"
+msgstr "Non utent:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:26
 msgid "NT Domain:"
-msgstr "NT 網域:"
+msgstr "Domini NT:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:27
 msgid "_IPsec Settings..."
@@ -493,7 +521,7 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:29
 msgid "Default"
-msgstr "預設值"
+msgstr "Predefinît"
 
 #: ../properties/nm-l2tp-dialog.ui.h:30
 msgid "L2TP PPP Options"
@@ -501,25 +529,27 @@ msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:31
 msgid "Authentication"
-msgstr "驗證"
+msgstr "Autenticazion"
 
 #: ../properties/nm-l2tp-dialog.ui.h:32
 msgid "Allow the following authentication methods:"
-msgstr "允許下列驗證方法："
+msgstr "Permet i metodis di autenticazion chi daurman:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:33
 msgid ""
 "Allow/disable authentication methods.\n"
 "config: refuse-pap, refuse-chap, refuse-mschap, refuse-mschap-v2, refuse-eap"
 msgstr ""
+"Permet/disabilite metodis di autenticazion.\n"
+"config: refuse-pap, refuse-chap, refuse-mschap, refuse-mschap-v2, refuse-eap"
 
 #: ../properties/nm-l2tp-dialog.ui.h:35
 msgid "Security and Compression"
-msgstr "安全性與壓縮"
+msgstr "Sigurece e compression"
 
 #: ../properties/nm-l2tp-dialog.ui.h:36
 msgid "Use _Point-to-Point encryption (MPPE)"
-msgstr "使用點對點加密[MPPE](_P)"
+msgstr "Dopre cifradure _pont a pont (MPPE)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:37
 msgid ""
@@ -527,52 +557,62 @@ msgid ""
 "To enable this checkbox, select one or more of the MSCHAP authentication "
 "methods: MSCHAP or MSCHAPv2."
 msgstr ""
-"注意：MPPE 加密只能使用 MSCHAP 驗證方法。要啟用這個核取方塊，請選擇一個或更多"
-"的 MSCHAP 驗證方法：MSCHAP 或 MSCHAPv2。"
+"Note: la cifradure MPPE e je disponibile dome cui metodis di autenticazion "
+"MSCHAP. Par abilitâ cheste casele di selezion, selezione un o plui dai "
+"metodis di autenticazion MSCHAP: MSCHAP or MSCHAPv2."
 
 #: ../properties/nm-l2tp-dialog.ui.h:38
 msgid "_Security:"
-msgstr "安全性(_S):"
+msgstr "_Sigurece:"
 
 #: ../properties/nm-l2tp-dialog.ui.h:39
 msgid ""
 "Require the use of MPPE, with 40/128-bit encryption or all.\n"
 "config: require-mppe, require-mppe-128 or require-mppe-40"
 msgstr ""
+"Al domande l'ûs di MPPE, cun cifradure a 40/128-bit o dutis.\n"
+"config: require-mppe, require-mppe-128 o require-mppe-40"
 
 #: ../properties/nm-l2tp-dialog.ui.h:41
 msgid "Allow st_ateful encryption"
-msgstr "允許可設定狀態加密(_A)"
+msgstr "Permet cifradure cun stât"
 
 #: ../properties/nm-l2tp-dialog.ui.h:42
 msgid ""
 "Allow MPPE to use stateful mode. Stateless mode is still attempted first.\n"
 "config: mppe-stateful (when checked)"
 msgstr ""
+"Permet a MPPE di doprâ la modalitât cun stât. La modalitât cence stât e je "
+"ancjemò provade par prime.\n"
+"config: mppe-stateful (cuant selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:44
 msgid "Allow _BSD data compression"
-msgstr "允許 _BSD 資料壓縮"
+msgstr "Permet compression dâts _BSD"
 
 #: ../properties/nm-l2tp-dialog.ui.h:45
 msgid ""
 "Allow/disable BSD-Compress compression.\n"
 "config: nobsdcomp (when unchecked)"
 msgstr ""
+"Permet/disabilite compression BSD-Compress.\n"
+"config: nobsdcomp (cuant no selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:47
 msgid "Allow _Deflate data compression"
-msgstr "允許 _Deflate 資料壓縮"
+msgstr "Permet compression dâts _Deflate"
 
 #: ../properties/nm-l2tp-dialog.ui.h:48
 msgid ""
 "Allow/disable Deflate compression.\n"
 "config: nodeflate (when unchecked)"
 msgstr ""
+"Permet/disabilite compression Deflate.\n"
+"config: nodeflate (cuant no selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:50
 msgid "Use TCP _header compression"
-msgstr "使用 TCP 標頭壓縮(_H)"
+msgstr "Dopre compression _intestazion TCP"
 
 #: ../properties/nm-l2tp-dialog.ui.h:51
 msgid ""
@@ -580,46 +620,59 @@ msgid ""
 "transmit and the receive directions.\n"
 "config: novj (when unchecked)"
 msgstr ""
+"Permet/disabilite compression intestazion TCP/IP in stîl Van Jacobson in "
+"ricezion e trasmission.\n"
+"config: novj (cuant no selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:53
 msgid "Use protocol _field compression negotiation"
 msgstr ""
 
 #: ../properties/nm-l2tp-dialog.ui.h:54
+#, fuzzy
 msgid ""
 "Allow protocol field compression negotiation in both the receive and the "
 "transmit direction.\n"
 "config: nopcomp (when unchecked)"
 msgstr ""
+"Permet/disabilite compression intestazion TCP/IP in stîl Van Jacobson in "
+"ricezion e trasmission.\n"
+"config: novj (cuant no selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:56
 #, fuzzy
 msgid "Use _Address/Control compression"
-msgstr "使用 TCP 標頭壓縮(_H)"
+msgstr "Dopre compression _intestazion TCP"
 
 #: ../properties/nm-l2tp-dialog.ui.h:57
+#, fuzzy
 msgid ""
 "Use Address/Control compression in both directions (send and receive).\n"
 "config: noaccomp (when unchecked)"
 msgstr ""
+"Permet/disabilite compression intestazion TCP/IP in stîl Van Jacobson in "
+"ricezion e trasmission.\n"
+"config: novj (cuant no selezionât)"
 
 #: ../properties/nm-l2tp-dialog.ui.h:59
 msgid "Echo"
-msgstr "回應"
+msgstr "Echo"
 
 #: ../properties/nm-l2tp-dialog.ui.h:60
 msgid "Send PPP _echo packets"
-msgstr "傳送 PPP _echo 封包"
+msgstr "Invie pachets _echo PPP"
 
 #: ../properties/nm-l2tp-dialog.ui.h:61
 msgid ""
 "Send LCP echo-requests to find out whether peer is alive.\n"
 "config: lcp-echo-failure and lcp-echo-interval"
 msgstr ""
+"Invie domandis-echo LCP par verificâ se il grop al è atîf.\n"
+"config: lcp-echo-failure e lcp-echo-interval"
 
 #: ../properties/nm-l2tp-dialog.ui.h:63
 msgid "Misc"
-msgstr ""
+msgstr "Variis"
 
 #: ../properties/nm-l2tp-dialog.ui.h:64
 msgid "MTU :"

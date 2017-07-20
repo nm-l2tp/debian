@@ -1,6 +1,24 @@
 =======================================================
-NetworkManager-l2tp-1.2.6
+NetworkManager-l2tp-1.2.8
 Overview of changes since network-manager-l2tp-1.2.6
+=======================================================
+
+This is a new stable release of NetworkManager-l2tp.  Notable changes include:
+
+* Updated translations, merged from NetworkManager-applet,
+  NetworkManager-libreswan, NetworkManager-pptp and
+  KDE Plasma NetworkManagement L2TP. Removed obsolete translations.
+* Enforce UDP encapsulation toggle button fix.
+* Stop strongSwan service when a connection cannot be established.
+* fix entries in Debian Lintian spelling-error-in-binary report.
+* configure --runstatedir support if using Autoconf >= 2.7.0.
+* If "Automatic (VPN) Addresses Only" mode is enabled in the the IPv4
+  config settings, do not use the pppd usepeerdns option.
+  i.e. do not overide /etc/resolv.conf.
+
+=======================================================
+NetworkManager-l2tp-1.2.6
+Overview of changes since network-manager-l2tp-1.2.4
 =======================================================
 
 This is a new stable release of NetworkManager-l2tp.  Notable changes include:
@@ -9,7 +27,7 @@ This is a new stable release of NetworkManager-l2tp.  Notable changes include:
   "leftprotoport=udp/l2tp" (which is equivalent to "leftprotoport=udp/1701") to
   the ipsec config file. This was done to ensures L2TP is encapsulated in IPsec
 * Uses UUID instead of PID for run-time generated filenames
-* No longer temporarily replaces stsem /etc/ipsec.secrets file
+* No longer temporarily replaces system /etc/ipsec.secrets file
 * IPsec rekeying is now possible because the following file remains for the
   lifetime of the VPN connection :
     /etc/ipsec.d/nm-l2tp-ipsec-UUID.secrets
