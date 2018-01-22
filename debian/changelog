@@ -1,3 +1,10 @@
+network-manager-l2tp (1.2.8-2) unstable; urgency=medium
+
+  * No longer depends on network-manager-dev
+  * Stop building with libnm-glib compat support 
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Mon, 22 Jan 2018 22:00:00 +1000
+
 network-manager-l2tp (1.2.8-1) unstable; urgency=medium
 
   * New upstream release.

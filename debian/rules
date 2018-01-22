@@ -20,6 +20,7 @@ override_dh_autoreconf_clean:
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--libexecdir=/usr/lib/NetworkManager \
+		--without-libnm-glib \
 		--disable-static \
 		--with-pppd-plugin-dir=$(PPPD_PLUGIN_DIR)
 

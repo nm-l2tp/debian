@@ -1,0 +1,1 @@
+rm_conffile /etc/NetworkManager/VPN/nm-l2tp-service.name 1.2.8-2~
