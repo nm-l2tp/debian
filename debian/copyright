@@ -1,11 +1,11 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: NetworkManager-l2tp
 Source: https://github.com/nm-l2tp/network-manager-l2tp
 
 Files: *
 Copyright: 2008 - 2014 Red Hat, Inc.
            2007 - 2008 Novell, Inc.
-           2016 - 2017 Douglas Kosovic <doug@uq.edu.au>
+           2016 - 2018 Douglas Kosovic <doug@uq.edu.au>
            2014 Nathan Dorfman <ndorf@rtfm.net>
            2012 Sergey Prokhorov <me@seriyps.ru>
            2011 Alexey Torkhov <atorkhov@gmail.com>

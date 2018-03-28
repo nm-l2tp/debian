@@ -1,14 +1,16 @@
 #!/usr/bin/make -f
 
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+include /usr/share/dpkg/architecture.mk
 
 PPPD_PLUGIN_DIR := $(shell dh_ppp --plugin-dir)
+
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 %:
 	dh $@ --with ppp
 
 override_dh_autoreconf:
-	dh_autoreconf
+	dh_autoreconf --as-needed
 	intltoolize
 
 override_dh_autoreconf_clean:
@@ -20,6 +22,7 @@ override_dh_autoreconf_clean:
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--libexecdir=/usr/lib/NetworkManager \
+		--without-libnm-glib \
 		--disable-static \
 		--with-pppd-plugin-dir=$(PPPD_PLUGIN_DIR)
 
@@ -28,5 +31,9 @@ override_dh_makeshlibs:
 		-X/usr/lib/pppd/
 
 override_dh_install:
-	dh_install -X.la --list-missing
+	find debian/tmp -name '*.la' -print -delete
+	dh_install
+
+override_dh_missing:
+	dh_missing --fail-missing
 

@@ -1,5 +1,3 @@
-usr/lib/*/NetworkManager/libnm-l2tp-properties.so
 usr/lib/*/NetworkManager/libnm-vpn-plugin-l2tp-editor.so
 usr/lib/NetworkManager/nm-l2tp-auth-dialog
 usr/share/appdata/network-manager-l2tp.metainfo.xml
-usr/share/gnome-vpn-properties

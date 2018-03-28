@@ -290,33 +290,27 @@ validate_one_property (const char *key, const char *value, gpointer user_data)
 
 		switch (prop.type) {
 		case G_TYPE_STRING:
-			if (!strcmp (prop.name, NM_L2TP_KEY_IPSEC_PSK) ||
-			    !strcmp (prop.name, NM_L2TP_KEY_CERT_PUB)  ||
-			    !strcmp (prop.name, NM_L2TP_KEY_CERT_CA)  ||
-			    !strcmp (prop.name, NM_L2TP_KEY_CERT_KEY) ||
-			    !strcmp (prop.name, NM_L2TP_KEY_IPSEC_IKE) ||
-			    !strcmp (prop.name, NM_L2TP_KEY_IPSEC_ESP) ||
-				!strcmp (prop.name, NM_L2TP_KEY_IPSEC_GROUP_NAME))
-				return; /* valid */
+			if (   !strcmp (prop.name, NM_L2TP_KEY_GATEWAY)) {
+				if ( validate_gateway (value) )
+					return; /* valid */
 
-			if (   !strcmp (prop.name, NM_L2TP_KEY_GATEWAY)
-			    && !validate_gateway (value)) {
 				g_set_error (info->error,
 				             NM_VPN_PLUGIN_ERROR,
 				             NM_VPN_PLUGIN_ERROR_BAD_ARGUMENTS,
 				             _("invalid gateway '%s'"),
 				             key);
-				return; /* valid */
-			}
-			if (   !strcmp (prop.name, NM_L2TP_KEY_IPSEC_GATEWAY_ID)
-			    && !validate_gateway_id (value)) {
+
+			} else if (   !strcmp (prop.name, NM_L2TP_KEY_IPSEC_GATEWAY_ID) ) {
+				if ( validate_gateway_id (value) )
+					return; /* valid */
+
 				g_set_error (info->error,
 				             NM_VPN_PLUGIN_ERROR,
 				             NM_VPN_PLUGIN_ERROR_BAD_ARGUMENTS,
 				             _("invalid ipsec-gateway-id '%s'"),
 				             key);
-				return; /* valid */
 			}
+			return;
 		case G_TYPE_UINT:
 			errno = 0;
 			tmp = strtol (value, NULL, 10);
@@ -665,8 +659,8 @@ nm_l2tp_config_write (NML2tpPlugin *plugin,
 		/*
 		 * IPsec secrets
 		 */
-		secrets = "/etc/ipsec.secrets";
-		ipsec_d = "/etc/ipsec.d";
+		secrets = NM_IPSEC_SECRETS;     /* typically /etc/ipsec.secrets */
+		ipsec_d = NM_IPSEC_SECRETS_DIR; /* typically /etc/ipsec.d */
 		if (!priv->is_libreswan) {
 			if (g_file_test ("/etc/strongswan", G_FILE_TEST_IS_DIR)) {
 				secrets = "/etc/strongswan/ipsec.secrets";
@@ -997,7 +991,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 		/* wait for Libreswan to get ready before performing an up operation */
 		snprintf (cmdbuf, sizeof(cmdbuf), "%s auto --ready", priv->ipsec_binary_path);
 		sys = system (cmdbuf);
-		for (retry = 0; retry < 10 && sys != 0; retry++) {
+		for (retry = 0; retry < 5 && sys != 0; retry++) {
 			sleep (1);
 			sys = system (cmdbuf);
 		}
@@ -1024,7 +1018,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 		/* wait for strongSwan to get ready before performing an up operation  */
 		snprintf (cmdbuf, sizeof(cmdbuf), "%s rereadsecrets", priv->ipsec_binary_path);
 		sys = system (cmdbuf);
-		for (retry = 0; retry < 10 && sys != 0; retry++) {
+		for (retry = 0; retry < 5 && sys != 0; retry++) {
 			sleep (1);
 			sys = system (cmdbuf);
 		}
@@ -1032,43 +1026,39 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin,
 
 	/* spawn ipsec script asynchronously as it sometimes doesn't exit */
 	pid_ipsec_up = 0;
-	if (!sys) {
-		if (priv->is_libreswan) {
-			snprintf (cmdbuf, sizeof(cmdbuf), "%s auto "
-					 " --config "RUNDIR"/nm-l2tp-ipsec-%s.conf --verbose"
-					 " --add '%s'", priv->ipsec_binary_path, priv->uuid, priv->uuid);
-			sys = system(cmdbuf);
-			if (!sys) {
-				argv[0] = priv->ipsec_binary_path;
-				argv[1] = "auto";
-				argv[2] = "--up";
-				argv[3] = priv->uuid;
-				argv[4] = NULL;
-
-				if (!g_spawn_async (NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD,
-					NULL, NULL, &pid_ipsec_up, NULL)) {
-					pid_ipsec_up = 0;
-				} else {
-					if (pid_ipsec_up)
-						_LOGI ("Spawned ipsec auto --up script with PID %d.", pid_ipsec_up);
-				}
-			}
-		} else {
+	if (priv->is_libreswan) {
+		snprintf (cmdbuf, sizeof(cmdbuf), "%s auto "
+				 " --config "RUNDIR"/nm-l2tp-ipsec-%s.conf --verbose"
+				 " --add '%s'", priv->ipsec_binary_path, priv->uuid, priv->uuid);
+		sys = system(cmdbuf);
+		if (!sys) {
 			argv[0] = priv->ipsec_binary_path;
-			argv[1] = "up";
-			argv[2] = priv->uuid;
-			argv[3] = NULL;
+			argv[1] = "auto";
+			argv[2] = "--up";
+			argv[3] = priv->uuid;
+			argv[4] = NULL;
 
 			if (!g_spawn_async (NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD,
-				 NULL, NULL, &pid_ipsec_up, NULL)) {
+				NULL, NULL, &pid_ipsec_up, NULL)) {
 				pid_ipsec_up = 0;
 			} else {
 				if (pid_ipsec_up)
-					_LOGI ("Spawned ipsec up script with PID %d.", pid_ipsec_up);
+					_LOGI ("Spawned ipsec auto --up script with PID %d.", pid_ipsec_up);
 			}
 		}
 	} else {
-		_LOGW ("IPsec service is not ready.");
+		argv[0] = priv->ipsec_binary_path;
+		argv[1] = "up";
+		argv[2] = priv->uuid;
+		argv[3] = NULL;
+
+		if (!g_spawn_async (NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD,
+			 NULL, NULL, &pid_ipsec_up, NULL)) {
+			pid_ipsec_up = 0;
+		} else {
+			if (pid_ipsec_up)
+				_LOGI ("Spawned ipsec up script with PID %d.", pid_ipsec_up);
+		}
 	}
 
 	if (pid_ipsec_up > 0) {
