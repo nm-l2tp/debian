@@ -1,3 +1,20 @@
+network-manager-l2tp (1.2.14-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 4.4.1
+  * Set Rules-Requires-Root to no
+  * Move D-Bus policy file to /usr/share/dbus-1/system.d/
+  * Changes related to upstream GitHub project rename from network-manager-l2tp
+    to NetworkManager-l2tp.
+  * Use upstream provided xz tarball instead of GitHub generated gz tarball.
+  * Added preinst script to remove network-manager-l2tp <= 1.2.10
+    /etc/ipsec.d/nm-l2tp-ipsec-*.secrets transient files.
+  * Added postrm script to remove /etc/ipsec.d/ipsec.nm-l2tp.secrets transient
+    file.
+  * Updated copyright file.
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Thu, 10 Oct 2019 22:32:00 +1000
+
 network-manager-l2tp (1.2.10-1) unstable; urgency=medium
 
   * New upstream release.
@@ -41,4 +58,3 @@ network-manager-l2tp (1.2.6-1) unstable; urgency=medium
   * initial release
 
  -- Douglas Kosovic <doug@uq.edu.au>  Sun, 21 May 2017 18:15:00 +1000
-

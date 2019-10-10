@@ -11,18 +11,10 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 override_dh_autoreconf:
 	dh_autoreconf --as-needed
-	intltoolize
-
-override_dh_autoreconf_clean:
-	dh_autoreconf_clean
-	rm -f intltool-*.in
-	rm -f m4/intltool.m4
-	rm -f po/Makefile.in.in
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--libexecdir=/usr/lib/NetworkManager \
-		--without-libnm-glib \
 		--disable-static \
 		--with-pppd-plugin-dir=$(PPPD_PLUGIN_DIR)
 
@@ -36,4 +28,3 @@ override_dh_install:
 
 override_dh_missing:
 	dh_missing --fail-missing
-

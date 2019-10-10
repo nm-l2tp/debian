@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = foreign subdir-objects
+AUTOMAKE_OPTIONS = subdir-objects
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--enable-more-warnings=yes
@@ -38,6 +38,7 @@ shared_sources = \
 	shared/nm-utils/nm-shared-utils.h
 
 EXTRA_DIST += \
+	README.md \
 	shared/README
 
 src_cppflags = \
@@ -48,7 +49,8 @@ src_cppflags = \
 	-DNM_L2TP_LOCALEDIR=\"$(datadir)/locale\" \
 	-DNM_L2TP_STATEDIR=\"$(l2tp_statedir)\" \
 	-DPLUGINDIR=\"$(PPPD_PLUGIN_DIR)\" \
-	-DRUNSTATEDIR=\"$(runstatedir)\"
+	-DRUNSTATEDIR=\"$(runstatedir)\" \
+	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_DEFAULT
 
 ###############################################################################
 
@@ -90,6 +92,8 @@ libexec_PROGRAMS += src/nm-l2tp-service
 src_nm_l2tp_service_SOURCES = \
 	$(shared_sources) \
 	shared/nm-service-defines.h \
+	shared/utils.h \
+	shared/utils.c \
 	src/nm-ppp-status.h \
 	src/nm-l2tp-service.h \
 	src/nm-l2tp-service.c
@@ -112,7 +116,7 @@ src_nm_l2tp_pppd_plugin_la_CPPFLAGS = $(src_cppflags)
 src_nm_l2tp_pppd_plugin_la_LDFLAGS = \
 	-module -avoid-version
 src_nm_l2tp_pppd_plugin_la_LIBADD = \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS) \
 	$(LIBNM_LIBS)
 
 ###############################################################################
@@ -126,17 +130,17 @@ properties/resources.c: properties/gresource.xml $(shell $(GLIB_COMPILE_RESOURCE
 plugin_sources = \
 	shared/nm-utils/nm-vpn-plugin-macros.h \
 	properties/nm-l2tp-editor-plugin.c \
-	properties/nm-l2tp-editor-plugin.h \
-	properties/import-export.c \
-	properties/import-export.h
+	properties/nm-l2tp-editor-plugin.h
 
 editor_sources = \
 	$(shared_sources) \
 	shared/nm-utils/nm-vpn-plugin-utils.h \
+	shared/utils.h \
+	shared/utils.c \
 	properties/resources.c \
 	properties/resources.h \
-	properties/advanced-dialog.c \
-	properties/advanced-dialog.h \
+	properties/ppp-dialog.c \
+	properties/ppp-dialog.h \
 	properties/ipsec-dialog.c \
 	properties/ipsec-dialog.h \
 	properties/nm-l2tp-editor.c \
@@ -180,7 +184,9 @@ properties_libnm_vpn_plugin_l2tp_la_LDFLAGS = \
 
 ###############################################################################
 
+if WITH_GNOME
 plugin_LTLIBRARIES += properties/libnm-vpn-plugin-l2tp-editor.la
+endif
 
 properties_libnm_vpn_plugin_l2tp_editor_la_SOURCES = \
 	$(editor_sources)
@@ -217,8 +223,7 @@ properties_libnm_l2tp_properties_la_CFLAGS = \
 	$(LIBNM_GLIB_CFLAGS) \
 	$(LIBNM_GTK_CFLAGS)
 properties_libnm_l2tp_properties_la_CPPFLAGS = \
-	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_LIB \
-	-DNM_VPN_OLD \
+	-DNETWORKMANAGER_COMPILATION='NM_NETWORKMANAGER_COMPILATION_LIB|NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL' \
 	$(properties_cppflags)
 properties_libnm_l2tp_properties_la_LIBADD = \
 	$(GLIB_LIBS) \
@@ -247,6 +252,7 @@ auth_dialog_nm_l2tp_auth_dialog_CFLAGS = \
 	$(LIBNMA_CFLAGS) \
 	$(LIBSECRET_CFLAGS)
 auth_dialog_nm_l2tp_auth_dialog_CPPFLAGS = \
+	-DNETWORKMANAGER_COMPILATION=NM_NETWORKMANAGER_COMPILATION_DEFAULT \
 	-I$(top_srcdir)/shared
 auth_dialog_nm_l2tp_auth_dialog_LDADD = \
 	$(GLIB_LIBS) \
