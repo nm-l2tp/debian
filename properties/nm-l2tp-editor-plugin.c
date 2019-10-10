@@ -25,13 +25,11 @@
 
 #include "nm-l2tp-editor-plugin.h"
 
-#ifdef NM_VPN_OLD
+#if (NETWORKMANAGER_COMPILATION & NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL)
 #include "nm-l2tp-editor.h"
 #else
 #include "nm-utils/nm-vpn-plugin-utils.h"
 #endif
-
-#include "import-export.h"
 
 #define L2TP_PLUGIN_NAME    _("Layer 2 Tunneling Protocol (L2TP)")
 #define L2TP_PLUGIN_DESC    _("Compatible with Microsoft and other L2TP VPN servers.")
@@ -58,7 +56,8 @@ enum {
 static NMConnection *
 import (NMVpnEditorPlugin *iface, const char *path, GError **error)
 {
-	NMConnection *connection = NULL;
+	gs_free char *contents = NULL;
+	gs_strfreev char **lines = NULL;
 	char *ext;
 
 	ext = strrchr (path, '.');
@@ -78,12 +77,23 @@ import (NMVpnEditorPlugin *iface, const char *path, GError **error)
 		return NULL;
 	}
 
-	connection = do_import (path, error);
+	if (!g_file_get_contents (path, &contents, NULL, error))
+		return NULL;
 
-	if ((connection == NULL) && (*error != NULL))
-		g_warning("Can't import file as L2TP config: %s", (*error)->message);
+	lines = g_strsplit_set (contents, "\r\n", 0);
+	if (g_strv_length (lines) <= 1) {
+		g_set_error (error,
+		             NMV_EDITOR_PLUGIN_ERROR,
+		             NMV_EDITOR_PLUGIN_ERROR_FILE_NOT_READABLE,
+		             "not a valid L2TP configuration file");
+		return NULL;
+	}
 
-	return connection;
+	g_set_error_literal (error,
+	                     NMV_EDITOR_PLUGIN_ERROR,
+	                     NMV_EDITOR_PLUGIN_ERROR_FAILED,
+	                     "L2TP import is not implemented");
+	return NULL;
 }
 
 static gboolean
@@ -92,7 +102,11 @@ export (NMVpnEditorPlugin *iface,
         NMConnection *connection,
         GError **error)
 {
-	return do_export (path, connection, error);
+	g_set_error_literal (error,
+	                     NMV_EDITOR_PLUGIN_ERROR,
+	                     NMV_EDITOR_PLUGIN_ERROR_FAILED,
+	                     "L2TP export is not implemented");
+	return FALSE;
 }
 
 static char *
@@ -115,11 +129,10 @@ get_suggested_filename (NMVpnEditorPlugin *iface, NMConnection *connection)
 static NMVpnEditorPluginCapability
 get_capabilities (NMVpnEditorPlugin *iface)
 {
-	return (NM_VPN_EDITOR_PLUGIN_CAPABILITY_IMPORT |
-	        NM_VPN_EDITOR_PLUGIN_CAPABILITY_EXPORT);
+	return NM_VPN_EDITOR_PLUGIN_CAPABILITY_NONE;
 }
 
-#ifndef NM_VPN_OLD
+#if !(NETWORKMANAGER_COMPILATION & NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL)
 static NMVpnEditor *
 _call_editor_factory (gpointer factory,
                       NMVpnEditorPlugin *editor_plugin,
@@ -141,7 +154,7 @@ get_editor (NMVpnEditorPlugin *iface, NMConnection *connection, GError **error)
 	g_return_val_if_fail (!error || !*error, NULL);
 
 	{
-#ifdef NM_VPN_OLD
+#if (NETWORKMANAGER_COMPILATION & NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL)
 		return nm_vpn_plugin_ui_widget_interface_new (connection, error);
 #else
 		return nm_vpn_plugin_utils_load_editor (NM_PLUGIN_DIR"/libnm-vpn-plugin-l2tp-editor.so",

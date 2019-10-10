@@ -11,7 +11,7 @@ For IPsec support, it uses either of the following :
 
 For details on pre-built packages, known issues and build dependencies,
 please visit the Wiki :
-* https://github.com/nm-l2tp/network-manager-l2tp/wiki
+* https://github.com/nm-l2tp/NetworkManager-l2tp/wiki
 
 ## Building
 
@@ -24,7 +24,7 @@ overridden with ./configure arguments. In the configure examples below, you
 may need to change the `--with-pppd-plugin-dir` value to an appropriate
 directory that exists.
 
-#### Debian and Ubuntu (AMD64, i.e. x86-64)
+#### Debian >= 10 and Ubuntu >= 18.04 (AMD64, i.e. x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
@@ -33,12 +33,31 @@ directory that exists.
       --localstatedir=/var \
       --with-pppd-plugin-dir=/usr/lib/pppd/2.4.7
 
-#### Fedora and Red Hat Enterprise Linux (x86-64)
+#### Debian 9 and Ubuntu 16.04 (AMD64, i.e. x86-64)
+
+    ./configure \
+      --disable-static --prefix=/usr \
+      --sysconfdir=/etc --libdir=/usr/lib/x86_64-linux-gnu \
+      --libexecdir=/usr/lib/NetworkManager \
+      --localstatedir=/var \
+      --with-libnm-glib \
+      --with-pppd-plugin-dir=/usr/lib/pppd/2.4.7
+
+#### Fedora >= 28 and Red Hat Enterprise Linux 8 (x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib64 \
       --localstatedir=/var \
+      --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.7
+
+#### Red Hat Enterprise Linux 7 (x86-64)
+
+    ./configure \
+      --disable-static --prefix=/usr \
+      --sysconfdir=/etc --libdir=/usr/lib64 \
+      --localstatedir=/var \
+      --with-libnm-glib \
       --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.7
 
 #### openSUSE (x86-64)
@@ -52,28 +71,38 @@ directory that exists.
 
 ## Run-time generated files
 
-* /var/run/nm-l2tp-xl2tpd-_UUID_.conf
-* /var/run/nm-l2tp-ppp-options-_UUID_
-* /var/run/nm-l2tp-xl2tpd-control-_UUID_
-* /var/run/nm-l2tp-xl2tpd-_UUID_.pid
-* /var/run/nm-l2tp-ipsec-_UUID_.conf
-* /etc/ipsec.d/nm-l2tp-ipsec-_UUID_.secrets
+The following files located under `/var/run` assume `--localstatedir=/var` or
+`--runstatedir=/var/run` were supplied to the configure script at build time.
+
+* /var/run/nm-l2tp-_UUID_/xl2tpd.conf
+* /var/run/nm-l2tp-_UUID_/xl2tpd-control
+* /var/run/nm-l2tp-_UUID_/xl2tpd.pid
+* /var/run/nm-l2tp-_UUID_/ppp-options
+* /var/run/nm-l2tp-_UUID_/ipsec.conf
+* /etc/ipsec.d/ipsec.nm-l2tp.secrets
 
 where _UUID_ is the NetworkManager UUID for the VPN connection.
 
-NetworkManager-l2tp will append the following line to `/etc/ipsec.secrets` at
-run-time if the line is missing:
+If strongswan is being used, NetworkManager-l2tp will append the following line
+to `/etc/ipsec.secrets` at run-time if the line is missing:
 
-    include /etc/ipsec.d/*.secrets
-
-The above files located under `/var/run` assume `--localstatedir=/var` or
-`--runstatedir=/var/run` were supplied to the configure script at build time.
+    include ipsec.d/ipsec.nm-l2tp.secrets
 
 ## Debugging
 
-Issue the following on the command line which will increase xl2tpd and pppd
-debugging, also the run-time generated config files will not be cleaned up
-after a VPN disconnection :
+For Systemd based Linux distributions logging goes to the Systemd journal
+which can be viewed by issuing the following :
+
+    journalctl --unit=NetworkManager
+
+For non-Systemd based Linux distributions, view the appropriate system log
+file which is most likely located under `/var/log/`.
+
+### Increase Debugging Output
+
+To increase debugging output, issue the following on the command line, it
+will also prevent the run-time generated config files from being deleted after
+the VPN connection is disconnected :
 
 #### Debian and Ubuntu
     sudo killall -TERM nm-l2tp-service
@@ -89,13 +118,58 @@ after a VPN disconnection :
 
 then start your VPN connection and reproduce the problem.
 
-NetworkManager and pppd logging goes to the Systemd journal which can be viewed
-by issuing the following which will show the logs since the last boot:
+For Systemd based Linux distributions when increasing the debugging output
+by running `nm-l2tp-service --debug` on the command-line, do not use
+`journalctl --unit=NetworkManager` as you may not see all the logs, instead
+issue:
 
-    journalctl --boot
+    journalctl -b
 
-For non-Systemd based Linux distributions, view the appropriate system log
-file which is most likely located under `/var/log/`.
+### Libreswan Custom Debugging
+
+The Libreswan debugging can be cutomized by setting the `PLUTODEBUG` env
+variable which corresponds to the `plutodebug` ipsec.conf config section option.
+The syntax for `PLUTODEBUG` is a white-space separated list of the following
+format :
+
+    PLUTODEBUG="TYPE TYPE ... TYPE"
+
+Where TYPE is a debug option from the list output by issuing the following on
+the command-line :
+
+    ipsec whack --debug list
+
+*Examples:*
+
+#### Debian and Ubuntu
+    sudo PLUTODEBUG="all proposal-parser" /usr/lib/NetworkManager/nm-l2tp-service --debug
+
+#### Fedora and Red Hat Enterprise Linux
+    sudo PLUTODEBUG="all proposal-parser" /usr/libexec/nm-l2tp-service --debug
+
+### strongSwan Custom Debugging
+
+The strongSwan debugging can be cutomized by setting the `CHARONDEBUG` env
+variable which corresponds to the `charondebug` ipsec.conf config section option.
+The syntax for `CHARONDEBUG` is a comma separated list of the following format :
+
+    CHARONDEBUG="TYPE LEVEL, TYPE LEVEL, ..., TYPE LEVEL"
+
+where TYPE is:
+  any|dmn|mgr|ike|chd|job|cfg|knl|net|asn|enc|tnc|imc|imv|pts|tls|esp|lib
+
+and LEVEL is: -1|0|1|2|3|4
+
+*Examples:*
+
+#### Debian and Ubuntu
+    sudo CHARONDEBUG="knl 1, ike 2, esp 2, lib 1, cfg 3" /usr/lib/NetworkManager/nm-l2tp-service --debug
+
+#### Fedora and Red Hat Enterprise Linux
+    sudo CHARONDEBUG="knl 1, ike 2, esp 2, lib 1, cfg 3" /usr/libexec/nm-l2tp-service --debug
+
+#### openSUSE
+    sudo CHARONDEBUG="knl 1, ike 2, esp 2, lib 1, cfg 3" /usr/lib/nm-l2tp-service --debug
 
 ## Issue with not stopping system xl2tpd service
 
@@ -121,6 +195,10 @@ disable the xl2tpd service from starting at boot time with :
 
 ## Issue with VPN servers only proposing IPsec IKEv1 weak legacy algorithms
 
+If you are not able to connect to a L2TP/IPsec server, but have no issue
+connecting with a Windows 10 or macOS/iOS/iPadOS L2TP client, please also see
+the Prevalent IKEv1 algorithms section below.
+
 There is a general consensus that the following legacy algorithms are now
 considered weak or broken in regards to security and should be phased out and
 replaced with stronger algorithms.
@@ -140,43 +218,57 @@ Diffie Hellman Groups :
 
 Legacy algorithms that are considered weak or broken are regularly removed from
 the default set of allowed algorithms with newer releases of strongSwan and
-Libreswan. As of strongSwan 5.4.0 and Libreswan 3.20, the above algorithms
-(apart from SHA1 and MODP1536 for Libreswan which still includes them for
-backwards compatibility) have been or in some cases already been removed from
-the default set of allowed algorithms.
+Libreswan.
 
-If you are not sure which IKEv1 algorithms your VPN server uses, you can query
-the VPN server with the `ike-scan.sh` script located in the IPsec IKEv1
+As of strongSwan 5.4.0, the above algorithms have been removed from
+strongSwan's default set of allowed algorithms.
+
+As of Libreswan 3.20, the above algorithms have been removed from Libreswan's
+default set of allowed algorithms, except for 3DES, SHA1 and MODP1536 which
+were kept for backwards compatibility.
+
+If you are not sure if you are using Libreswan or Strongswan, issue the
+following on the command-line:
+
+```
+ipsec --version
+```
+
+If you are not sure which IKEv1 algorithms your VPN server proposes, you can
+query the VPN server with the `ike-scan.sh` script located in the IPsec IKEv1
 algorithms section of the Wiki :
-* https://github.com/nm-l2tp/network-manager-l2tp/wiki/Known-Issues
+* https://github.com/nm-l2tp/NetworkManager-l2tp/wiki/Known-Issues
 
-If the VPN server is only proposing weak or broken algorithms, it is
-recommended that it be reconfigured to propose stronger algorithms, e.g.
-AES, SHA2 and MODP2048.
+If for some reason the VPN server cannot be reconfigured or does not share any
+proposals in the Libreswan or Strongswan default set of allowed algorithms,
+user specified phase 1 (*ike* - Main Mode) and phase 2 (*esp* - Quick Mode)
+algorithms can be specified in the **Advanced** section of NetworkManager-l2tp's
+IPsec Options dialog box. Please see the Libreswan or openSwan `ipsec.conf`
+documentation for the *ike* and *esp* (aka *phase2alg*) syntax.
 
-If for some reason the VPN server cannot be reconfigured and you are not too
-concerned about security, for a workaround, user specified phase 1 (ike) and
-phase 2 (esp) algorithms can be specified in the IPsec Options dialog box in
-the `Advanced` section. See the following example and the IPsec IKEv1 algorithms section of the Wiki for more details :
-* https://github.com/nm-l2tp/network-manager-l2tp/wiki/Known-Issues
+### Prevalent IKEv1 algorithms
 
-### Example workaround for 3DES, SHA1 and MODP1024 broken algorithms
+Pressing the **Prevalent Algorithms** button in the IPsec Options dialog box
+populates the Phase 1 and 2 Algorithm text entry boxes with the following
+proposals, which are a merge of Windows 10 and macOS/iOS/iPadOS L2TP clients'
+IKEv1 proposals (**note:** it auto-detects if you are using strongSwan or
+Libreswan and populates appropriately with the correct syntax):
 
-Unfortunately there are many L2TP/IPsec VPN servers still offering only 3DES,
-SHA1 and MODP1024. One of the main reasons possibly for this is because it is
-the default Microsoft has offered with their L2TP/IPsec VPN servers since the
-days Windows XP was the main client.
+* Phase 1 - Main Mode :
+{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_2048},
+{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_1536},
+{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_1024},
+{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_2048},
+{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_1536},
+{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_1024},
+{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=ECP_384},
+{enc=AES_CBC_128 integ=HMAC_SHA1_96 group=MODP_1024},
+{enc=AES_CBC_128 integ=HMAC_SHA1_96 group=ECP_256},
+{enc=3DES_CBC integ=HMAC_SHA1_96 group=MODP_2048},
+{enc=3DES_CBC integ=HMAC_SHA1_96 group=MODP_1024}
 
-If you are using strongSwan for IPsec client support, enter the following in
-the corresponding IPsec Options dialog box advanced section:
-
-* Phase1 Algorithms : 3des-sha1-modp1024
-* Phase2 Algorithms : 3des-sha1
-
-If you are using Libreswan >= 3.20 for IPsec client support, enter the
-following in the IPsec Options dialog box advanced section:
-
-* Phase1 Algorithms : 3des-sha1;modp1024
-* Phase2 Algorithms : 3des-sha1
-
+* Phase 2 - Quick Mode :
+{enc=AES_CBC_256 integ=HMAC_SHA1_96},
+{enc=AES_CBC_128 integ=HMAC_SHA1_96},
+{enc=3DES_CBC integ=HMAC_SHA1_96}
 
