@@ -45,7 +45,7 @@
                 <property name="row_spacing">6</property>
                 <property name="column_spacing">12</property>
                 <child>
-                  <object class="GtkLabel" id="label23">
+                  <object class="GtkLabel" id="gateway_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">_Gateway:</property>
@@ -176,7 +176,7 @@ config: ppp name parameter</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label26">
+                  <object class="GtkLabel" id="username_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">User name:</property>
@@ -188,7 +188,7 @@ config: ppp name parameter</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label3">
+                  <object class="GtkLabel" id="password_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Password:</property>
@@ -200,7 +200,7 @@ config: ppp name parameter</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label4">
+                  <object class="GtkLabel" id="nt_domain_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">NT Domain:</property>
@@ -342,6 +342,15 @@ config: ppp name parameter</property>
         <property name="position">2</property>
       </packing>
     </child>
+  </object>
+  <object class="GtkSizeGroup" id="labels">
+    <property name="ignore_hidden">True</property>
+    <widgets>
+      <widget name="gateway_label"/>
+      <widget name="username_label"/>
+      <widget name="password_label"/>
+      <widget name="nt_domain_label"/>
+    </widgets>
   </object>
   <object class="GtkAdjustment" id="lifetime1_adjustment">
     <property name="upper">86400</property>
@@ -626,7 +635,7 @@ config: ipsec-ikelifetime &lt;lifetime&gt;</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">4</property>
+                            <property name="top_attach">3</property>
                           </packing>
                         </child>
                         <child>
@@ -640,7 +649,7 @@ config: ipsec-ikelifetime &lt;lifetime&gt;</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">5</property>
+                            <property name="top_attach">4</property>
                           </packing>
                         </child>
                         <child>
@@ -683,11 +692,11 @@ config: ipsec-salifetime &lt;lifetime&gt;</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">5</property>
+                            <property name="top_attach">4</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="ipsec_gateway_id_label">
+                          <object class="GtkLabel" id="ipsec_remote_id_label">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xpad">12</property>
@@ -724,45 +733,8 @@ ipsec.secrets: &lt;ID&gt;</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="prevalent_algorithms_button">
-                            <property name="label" translatable="yes">_Prevalent Algorithms</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="tooltip_text" translatable="yes">Populates Phase 1 and 2 Algorithm text entry boxes with the following proposals, which are a merge of Windows 10 and macOS/iOS/iPadOS L2TP clients' IKEv1 proposals.
-
-• Phase 1 - Main Mode :
-{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_2048},
-{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_1536},
-{enc=AES_CBC_256 integ=HMAC_SHA2_256_128 group=MODP_1024},
-{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_2048},
-{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_1536},
-{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=MODP_1024},
-{enc=AES_CBC_256 integ=HMAC_SHA1_96 group=ECP_384},
-{enc=AES_CBC_128 integ=HMAC_SHA1_96 group=MODP_1024},
-{enc=AES_CBC_128 integ=HMAC_SHA1_96 group=ECP_256},
-{enc=3DES_CBC integ=HMAC_SHA1_96 group=MODP_2048},
-{enc=3DES_CBC integ=HMAC_SHA1_96 group=MODP_1024}
-
-• Phase 2 - Quick Mode :
-{enc=AES_CBC_256 integ=HMAC_SHA1_96},
-{enc=AES_CBC_128 integ=HMAC_SHA1_96},
-{enc=3DES_CBC integ=HMAC_SHA1_96}</property>
-                            <property name="halign">center</property>
-                            <property name="valign">start</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
                             <property name="top_attach">3</property>
                           </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
                         </child>
                       </object>
                       <packing>

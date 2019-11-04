@@ -1,3 +1,9 @@
+network-manager-l2tp (1.2.16-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Mon, 04 Nov 2019 22:48:00 +1000
+
 network-manager-l2tp (1.2.14-1) unstable; urgency=medium
 
   * New upstream release.
