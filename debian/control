@@ -2,7 +2,7 @@ Source: network-manager-l2tp
 Section: net
 Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
-Build-Depends: debhelper (>= 11),
+Build-Depends: debhelper (>= 12~),
                intltool,
                libnm-dev (>= 1.2.0),
                libnma-dev (>= 1.2.0),
