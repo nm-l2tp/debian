@@ -4,13 +4,8 @@ include /usr/share/dpkg/architecture.mk
 
 PPPD_PLUGIN_DIR := $(shell dh_ppp --plugin-dir)
 
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
-
 %:
 	dh $@ --with ppp
-
-override_dh_autoreconf:
-	dh_autoreconf --as-needed
 
 override_dh_auto_configure:
 	dh_auto_configure -- \

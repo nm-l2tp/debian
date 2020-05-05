@@ -1,11 +1,14 @@
-network-manager-l2tp (1.2.16-2) UNRELEASED; urgency=medium
+network-manager-l2tp (1.2.18-1) unstable; urgency=medium
 
+  * New upstream release.
+  * Remove redundant -Wl,--as-needed as this is now default from Bullseye.
+  * Updated copyright file.
   * Bump debhelper from old 11 to 12.
   * Set debhelper-compat version in Build-Depends.
   * Set upstream metadata fields: Bug-Database, Bug-Submit (from
     ./configure), Repository, Repository-Browse.
 
- -- Debian Janitor <janitor@jelmer.uk>  Mon, 24 Feb 2020 10:43:55 +0000
+ -- Douglas Kosovic <doug@uq.edu.au>  Tue, 05 May 2020 17:36:00 +1000
 
 network-manager-l2tp (1.2.16-1) unstable; urgency=medium
 
