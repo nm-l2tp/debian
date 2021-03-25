@@ -1,3 +1,17 @@
+network-manager-l2tp (1.8.6-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Update Source and add Upstream-Contact in debian/copyright
+  * Remove unused dh_makeshlibs override
+  * Bump Standards-Version to 4.5.1
+  * Bump watch file version to 4
+  * Bump debhelper to 13.
+  * Use /usr/share/metainfo for AppData files
+  * Remove redundant patch to move D-Bus policy file
+  * Apply patch to remove GPLv2/OpenSSL license conflict in README.md
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Thu, 25 Mar 2021 22:49:00 +1000
+
 network-manager-l2tp (1.2.18-1) unstable; urgency=medium
 
   * New upstream release.

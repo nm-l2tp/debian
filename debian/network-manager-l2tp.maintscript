@@ -1,2 +1,2 @@
-rm_conffile /etc/NetworkManager/VPN/nm-l2tp-service.name 1.2.16-1~
+rm_conffile /etc/NetworkManager/VPN/nm-l2tp-service.name 1.8.6-1~
 rm_conffile /etc/dbus-1/system.d/nm-l2tp-service.name 1.2.10-1~
