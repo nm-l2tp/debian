@@ -1,12 +1,73 @@
 ==========================================================
-NetworkManager-l2tp-1.2.18
-Overview of changes since network-manager-l2tp-1.2.16
+NetworkManager-l2tp-1.8.6
+Overview of changes since NetworkManager-l2tp-1.8.4
 ==========================================================
 
+YOU MIGHT NOT BE ABLE TO PROVIDE PRE-BUILT BINARIES OF THIS RELEASE UNTIL
+THE INTENDED LINUX DISTRIBUTION SHIPS WITH OPENSSL 3.0 OR LATER THAT IS
+GPL COMPATIBLE.
+
+There are exceptions to this GPLv2 and OpenSSL licensing conflict, for example
+the Fedora Project considers OpenSSL to be a "System Library" and so exempt
+from the conflict per the "System Library Exception" :
+
+https://fedoraproject.org/wiki/Licensing:FAQ#What.27s_the_deal_with_the_OpenSSL_license.3F
+
+Changes:
+* Fix for preventing Fedora RPMs from building.
+  add missing properties/import-export.c to POTFILES.in
+
+==========================================================
+NetworkManager-l2tp-1.8.4
+Overview of changes since NetworkManager-l2tp-1.8.2
+==========================================================
+
+Changes:
+* Update translations.
+* Update strings for new dialog design in gnome-shell.
+  e.g use "Password" instead of "Password:".
+* Use /usr/share/metainfo for AppData files.
+* Move D-Bus policy file to /usr/share/dbus-1/system.d/
+* Add --with-nm-ipsec-nss-dir configure switch for Libreswan NSS
+  database location with default value of /var/lib/ipsec/nss
+* Do not add broken route to VPN gateway IP address.
+* Add back import/export capability.
+* update default PPPD_PLUGIN_DIR to ${libdir}/pppd/2.4.8
+* Fix for user certificate password flags for connection editor.
+
+==========================================================
+NetworkManager-l2tp-1.8.2
+Overview of changes since NetworkManager-l2tp-1.8.0
+==========================================================
+
+Changes:
+* Fixes for user certificate support.
 * Remove modp1024 in default phase 1 algorithms for Libreswan, as
   libreswan >= 3.30 is no longer built with DH2 (modp1024) support.
-* Provide --enable-libreswan-dh2 configure switch.
-* KDE plasma-nm compatibilty for Gateway ID.
+* Provide --enable-libreswan-dh2 configure switch for older libreswan versions.
+* KDE plasma-nm compatibility for "Gateway ID".
+
+==========================================================
+NetworkManager-l2tp-1.8.0
+Overview of changes since NetworkManager-l2tp-1.2.16
+==========================================================
+
+* User and machine TLS certificate support.
+* New dependency on OpenSSL's libcrypto (>= 1.1.0).
+* New dependency on Network Security Services (NSS) libraries.
+* Routines to auto detect the following TLS certificate and private key file
+  formats by looking at the file contents and not the file extension, also
+  determines if the files are encrypted with a password, which includes
+  testing if the password is the empty string or NULL :
+  - PKCS#12 certificates.
+  - X509 certificates (PEM or DER).
+  - PKCS#8 private keys (PEM or DER)
+  - traditional OpenSSL RSA, DSA and ECDSA private keys (PEM or DER).
+* Routines to import certificates and privates keys into a Libreswan NSS
+  database.
+* Grey out the auth type selection for user authentication if EAP-TLS
+  pppd patch not detected.
+* Update translations.
 
 ==========================================================
 NetworkManager-l2tp-1.2.16
@@ -15,7 +76,7 @@ Overview of changes since network-manager-l2tp-1.2.14
 
 * Update translations.
 * Fix label geometry in LT2P dialog box.
-* Remove "Prevalent Algorithms" button, overide default algorithms.
+* Remove "Prevalent Algorithms" button, override default algorithms.
   Made the phase 1 & 2 proposals previously provided by the Prevalent
   Algorithms button the new default for the IKEv1 proposals.
 
@@ -56,7 +117,7 @@ Overview of changes since network-manager-l2tp-1.2.12
 
 ==========================================================
 NetworkManager-l2tp-1.2.12
-Overview of changes since network-manager-l2tp-1.2.10
+Overview of changes since NetworkManager-l2tp-1.2.10
 ==========================================================
 
 * Update translations by merging from various sources.
@@ -106,24 +167,24 @@ Overview of changes since network-manager-l2tp-1.2.10
   to let us know before the libnm-glib support is removed for good.
 * The auth helper in external UI mode can now be run without a display
   server. Future nmcli version will utilize this for handling the
-  secrets without a graphical desktop.
+secrets without a graphical desktop.
 
 =======================================================
 NetworkManager-l2tp-1.2.10
-Overview of changes since network-manager-l2tp-1.2.8
+Overview of changes since NetworkManager-l2tp-1.2.8
 =======================================================
 
 This is a new stable release of NetworkManager-l2tp.  Notable changes include:
 
 * Point version 1.2.10 appdata image URIs to nm-1-2 github branch:
-  https://raw.githubusercontent.com/nm-l2tp/network-manager-l2tp/nm-1-2/appdata
+  https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/nm-1-2/appdata
 * Corrected force UDP encapsulation toggle button behavior.
 * Workaround for libreswan `ipsec status` issue with short (< 8 char) PSKs.
 * fix gcc -Wimplicit-fallthrough warning.
 
 =======================================================
 NetworkManager-l2tp-1.2.8
-Overview of changes since network-manager-l2tp-1.2.6
+Overview of changes since NetworkManager-l2tp-1.2.6
 =======================================================
 
 This is a new stable release of NetworkManager-l2tp.  Notable changes include:
@@ -141,7 +202,7 @@ This is a new stable release of NetworkManager-l2tp.  Notable changes include:
 
 =======================================================
 NetworkManager-l2tp-1.2.6
-Overview of changes since network-manager-l2tp-1.2.4
+Overview of changes since NetworkManager-l2tp-1.2.4
 =======================================================
 
 This is a new stable release of NetworkManager-l2tp.  Notable changes include:
@@ -163,7 +224,7 @@ This is a new stable release of NetworkManager-l2tp.  Notable changes include:
 
 =======================================================
 NetworkManager-l2tp-1.2.4
-Overview of changes since network-manager-l2tp-1.2.2
+Overview of changes since NetworkManager-l2tp-1.2.2
 =======================================================
 
 This is a new stable release of NetworkManager-l2tp.  Notable changes include:

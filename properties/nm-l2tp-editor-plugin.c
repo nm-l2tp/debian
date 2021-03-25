@@ -1,25 +1,11 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: t; c-basic-offset: 4 -*- */
+// SPDX-License-Identifier: GPL-2.0+
 /***************************************************************************
  *
  * Copyright (C) 2008 Dan Williams, <dcbw@redhat.com>
  * Copyright (C) 2008 - 2011 Red Hat, Inc.
  * Based on work by David Zeuthen, <davidz@redhat.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- **************************************************************************/
+ */
 
 #include "nm-default.h"
 
@@ -30,6 +16,8 @@
 #else
 #include "nm-utils/nm-vpn-plugin-utils.h"
 #endif
+
+#include "import-export.h"
 
 #define L2TP_PLUGIN_NAME    _("Layer 2 Tunneling Protocol (L2TP)")
 #define L2TP_PLUGIN_DESC    _("Compatible with Microsoft and other L2TP VPN servers.")
@@ -56,8 +44,7 @@ enum {
 static NMConnection *
 import (NMVpnEditorPlugin *iface, const char *path, GError **error)
 {
-	gs_free char *contents = NULL;
-	gs_strfreev char **lines = NULL;
+	NMConnection *connection = NULL;
 	char *ext;
 
 	ext = strrchr (path, '.');
@@ -77,23 +64,9 @@ import (NMVpnEditorPlugin *iface, const char *path, GError **error)
 		return NULL;
 	}
 
-	if (!g_file_get_contents (path, &contents, NULL, error))
-		return NULL;
+	connection = do_import (path, error);
 
-	lines = g_strsplit_set (contents, "\r\n", 0);
-	if (g_strv_length (lines) <= 1) {
-		g_set_error (error,
-		             NMV_EDITOR_PLUGIN_ERROR,
-		             NMV_EDITOR_PLUGIN_ERROR_FILE_NOT_READABLE,
-		             "not a valid L2TP configuration file");
-		return NULL;
-	}
-
-	g_set_error_literal (error,
-	                     NMV_EDITOR_PLUGIN_ERROR,
-	                     NMV_EDITOR_PLUGIN_ERROR_FAILED,
-	                     "L2TP import is not implemented");
-	return NULL;
+	return connection;
 }
 
 static gboolean
@@ -102,11 +75,7 @@ export (NMVpnEditorPlugin *iface,
         NMConnection *connection,
         GError **error)
 {
-	g_set_error_literal (error,
-	                     NMV_EDITOR_PLUGIN_ERROR,
-	                     NMV_EDITOR_PLUGIN_ERROR_FAILED,
-	                     "L2TP export is not implemented");
-	return FALSE;
+	return do_export (path, connection, error);
 }
 
 static char *
@@ -129,7 +98,8 @@ get_suggested_filename (NMVpnEditorPlugin *iface, NMConnection *connection)
 static NMVpnEditorPluginCapability
 get_capabilities (NMVpnEditorPlugin *iface)
 {
-	return NM_VPN_EDITOR_PLUGIN_CAPABILITY_NONE;
+	return (NM_VPN_EDITOR_PLUGIN_CAPABILITY_IMPORT |
+	        NM_VPN_EDITOR_PLUGIN_CAPABILITY_EXPORT);
 }
 
 #if !(NETWORKMANAGER_COMPILATION & NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL)

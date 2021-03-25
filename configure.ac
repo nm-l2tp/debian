@@ -1,7 +1,7 @@
 AC_PREREQ(2.60)
 
 AC_INIT(NetworkManager-l2tp,
-        1.2.18,
+        1.8.6,
         https://github.com/nm-l2tp/NetworkManager-l2tp/issues,
         NetworkManager-l2tp)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
@@ -62,9 +62,23 @@ AC_ARG_WITH([pppd-plugin-dir], AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [pat
 if test -n "$with_pppd_plugin_dir" ; then
 	PPPD_PLUGIN_DIR="$with_pppd_plugin_dir"
 else
-	PPPD_PLUGIN_DIR="${libdir}/pppd/2.4.7"
+	PPPD_PLUGIN_DIR="${libdir}/pppd/2.4.8"
 fi
 AC_SUBST(PPPD_PLUGIN_DIR)
+
+AC_MSG_CHECKING(whether EAP-TLS patch has been applied to pppd)
+AC_EGREP_CPP(eaptls_passwd_hook, [
+#define USE_EAPTLS
+#include <pppd/pppd.h>
+], [have_eap_tls=yes] , [have_eap_tls=no])
+
+if test "x${have_eap_tls}" = "xno"; then
+	AC_MSG_RESULT(no)
+	AC_MSG_WARN(EAP-TLS patch has not been applied to pppd)
+else
+	AC_MSG_RESULT(yes)
+	AC_DEFINE(USE_EAPTLS, 1, [Use EAP-TLS pppd patch])
+fi
 
 AC_ARG_WITH(nm-ipsec-secrets, AS_HELP_STRING([--with-nm-ipsec-secrets=path], [The main IPSec secrets file, defaults to /etc/ipsec.secrets]), [], [with_nm_ipsec_secrets=])
 AS_IF([test -z "$with_nm_ipsec_secrets"], with_nm_ipsec_secrets="/etc/ipsec.secrets")
@@ -79,6 +93,13 @@ if (printf '%s' "$with_nm_ipsec_secrets_dir" | grep -v -q '^/'); then
 	AC_MSG_ERROR([--with-nm-ipsec-secrets-dir must be an absolute path, instead it is '$with_nm_ipsec_secrets_dir'])
 fi
 AC_DEFINE_UNQUOTED(NM_IPSEC_SECRETS_DIR, "$with_nm_ipsec_secrets_dir", [IPSec secret dir])
+
+AC_ARG_WITH(nm-ipsec-nss-dir, AS_HELP_STRING([--with-nm-ipsec-nss-dir=path], [The directory where Libreswan's NSS db is stored, defaults to /var/lib/ipsec/nss/]), [], [with_nm_ipsec_nss_dir=])
+AS_IF([test -z "$with_nm_ipsec_nss_dir"], with_nm_ipsec_nss_dir="/var/lib/ipsec/nss")
+if (printf '%s' "$with_nm_ipsec_nss_dir" | grep -v -q '^/'); then
+	AC_MSG_ERROR([--with-nm-ipsec-nss-dir must be an absolute path, instead it is '$with_nm_ipsec_nss_dir'])
+fi
+AC_DEFINE_UNQUOTED(NM_IPSEC_NSS_DIR, "$with_nm_ipsec_nss_dir", [Libreswan NSS db dir])
 
 dnl
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -106,6 +127,25 @@ dnl
 AC_ARG_ENABLE(libreswan_dh2, AS_HELP_STRING([--enable-libreswan-dh2], [Build NetworkManager-l2tp with DH2(modp1024) in default phase 1 algorithms for Libreswan (default is no)]))
 if test "x${enable_libreswan_dh2}" = "xyes"; then
 	AC_DEFINE(LIBRESWAN_DH2, 1, [Libreswan DH2 support])
+fi
+
+dnl
+dnl Checks for NSS and OpenSSL.
+dnl
+PKG_CHECK_MODULES(OPENSSL, [libcrypto >= 1.1.0], [have_crypto_openssl=yes], [have_crypto_openssl=no])
+if test "x${have_crypto_openssl}" = "xno"; then
+	AC_MSG_ERROR($OPENSSL_PKG_ERRORS)
+fi
+PKG_CHECK_MODULES(NSS, [nss], [have_crypto_ipsec_nss=yes], [have_crypto_ipsec_nss=yes])
+if test "${have_crypto_ipsec_nss}" = "yes"; then
+	# Work around a pkg-config bug (fdo #29801) where exists != usable
+	FOO=`$PKG_CONFIG --cflags --libs nss`
+	if test x"$?" != "x0"; then
+		 have_crypto_ipsec_nss=no
+	fi
+fi
+if test "x${have_crypto_ipsec_nss}" = "xno"; then
+	AC_MSG_ERROR($NSS_PKG_ERRORS)
 fi
 
 dnl
@@ -144,28 +184,28 @@ PKG_CHECK_MODULES(GLIB, gio-unix-2.0 >= 2.32)
 GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_32"
 
 if test x"$with_gnome" != xno; then
-	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.4)
-	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_4"
+	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.14)
+	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_14"
 
-	PKG_CHECK_MODULES(LIBNMA, libnma >= 1.2.0)
+	PKG_CHECK_MODULES(LIBNMA, libnma >= 1.8.0)
 	PKG_CHECK_MODULES(LIBSECRET, libsecret-1 >= 0.18)
 
 	if test x"$with_libnm_glib" != xno; then
-		PKG_CHECK_MODULES(LIBNM_GTK, libnm-gtk >= 1.2.0)
+		PKG_CHECK_MODULES(LIBNM_GTK, libnm-gtk >= 1.8.0)
 		PKG_CHECK_MODULES(LIBNM_GLIB,
-			NetworkManager >= 1.2.0
-			libnm-util >= 1.2.0
-			libnm-glib >= 1.2.0
-			libnm-glib-vpn >= 1.2.0);
+			NetworkManager >= 1.8.0
+			libnm-util >= 1.8.0
+			libnm-glib >= 1.8.0
+			libnm-glib-vpn >= 1.8.0);
 
-		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_2"
-		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_2"
+		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_8"
+		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_8"
 	fi
 fi
 
-PKG_CHECK_MODULES(LIBNM, libnm >= 1.2.0)
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_2"
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_2"
+PKG_CHECK_MODULES(LIBNM, libnm >= 1.8.0)
+LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_8"
+LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_8"
 
 NM_VPN_SERVICE_DIR=`$PKG_CONFIG --define-variable prefix='\${prefix}' --variable vpnservicedir libnm`
 AC_SUBST(NM_VPN_SERVICE_DIR)

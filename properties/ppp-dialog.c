@@ -1,24 +1,10 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: t; c-basic-offset: 4 -*- */
+// SPDX-License-Identifier: GPL-2.0+
 /***************************************************************************
  *
  * Copyright (C) 2008 Dan Williams, <dcbw@redhat.com>
  * Copyright (C) 2008 - 2011 Red Hat, Inc.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- **************************************************************************/
+ */
 
 #include "nm-default.h"
 
@@ -379,7 +365,7 @@ auth_methods_setup (GtkBuilder *builder, GHashTable *hash)
 }
 
 GtkWidget *
-ppp_dialog_new (GHashTable *hash)
+ppp_dialog_new (GHashTable *hash, const char *authtype)
 {
 	GtkBuilder *builder;
 	GtkWidget *dialog = NULL;
@@ -409,6 +395,8 @@ ppp_dialog_new (GHashTable *hash)
 
 	g_object_set_data_full (G_OBJECT (dialog), "gtkbuilder-xml",
 	                        builder, (GDestroyNotify) g_object_unref);
+
+	g_object_set_data (G_OBJECT (dialog), "auth-type", GINT_TO_POINTER (authtype));
 
 	setup_security_combo (builder, hash);
 
@@ -494,10 +482,6 @@ ppp_dialog_new (GHashTable *hash)
 		gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), 1400);
 	}
 
-	widget = GTK_WIDGET (gtk_builder_get_object (builder,"ppp_use_mppe"));
-	handle_mppe_changed (widget, TRUE, builder);
-	g_signal_connect (G_OBJECT (widget), "toggled", G_CALLBACK (mppe_toggled_cb), builder);
-
 	widget = GTK_WIDGET (gtk_builder_get_object (builder,"ppp_mru_spinbutton"));
 	value = g_hash_table_lookup (hash, NM_L2TP_KEY_MRU);
 	if (value && *value) {
@@ -526,6 +510,7 @@ ppp_dialog_new_hash_from_dialog (GtkWidget *dialog, GError **error)
 	gboolean valid;
 	int mtu_num;
 	int mru_num;
+	char *authtype = NULL;
 
 	g_return_val_if_fail (dialog != NULL, NULL);
 	if (error)
@@ -583,40 +568,43 @@ ppp_dialog_new_hash_from_dialog (GtkWidget *dialog, GError **error)
 		g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_LCP_ECHO_INTERVAL), g_strdup_printf ("%d", 30));
 	}
 
-	widget = GTK_WIDGET (gtk_builder_get_object (builder, "ppp_auth_methods"));
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW (widget));
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	while (valid) {
-		gboolean allowed;
-		guint32 tag;
+	authtype = g_object_get_data (G_OBJECT (dialog), "auth-type");
+	if (   !strcmp (authtype, NM_L2TP_AUTHTYPE_PASSWORD)) {
+		widget = GTK_WIDGET (gtk_builder_get_object (builder, "ppp_auth_methods"));
+		model = gtk_tree_view_get_model (GTK_TREE_VIEW (widget));
+		valid = gtk_tree_model_get_iter_first (model, &iter);
+		while (valid) {
+			gboolean allowed;
+			guint32 tag;
 
-		gtk_tree_model_get (model, &iter, COL_VALUE, &allowed, COL_TAG, &tag, -1);
-		switch (tag) {
-		case TAG_PAP:
-			if (!allowed)
-				g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_PAP), g_strdup ("yes"));
-			break;
-		case TAG_CHAP:
-			if (!allowed)
-				g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_CHAP), g_strdup ("yes"));
-			break;
-		case TAG_MSCHAP:
-			if (!allowed)
-				g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_MSCHAP), g_strdup ("yes"));
-			break;
-		case TAG_MSCHAPV2:
-			if (!allowed)
-				g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_MSCHAPV2), g_strdup ("yes"));
-			break;
-		case TAG_EAP:
-			if (!allowed)
-				g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_EAP), g_strdup ("yes"));
-			break;
-		default:
-			break;
+			gtk_tree_model_get (model, &iter, COL_VALUE, &allowed, COL_TAG, &tag, -1);
+			switch (tag) {
+			case TAG_PAP:
+				if (!allowed)
+					g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_PAP), g_strdup ("yes"));
+				break;
+			case TAG_CHAP:
+				if (!allowed)
+					g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_CHAP), g_strdup ("yes"));
+				break;
+			case TAG_MSCHAP:
+				if (!allowed)
+					g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_MSCHAP), g_strdup ("yes"));
+				break;
+			case TAG_MSCHAPV2:
+				if (!allowed)
+					g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_MSCHAPV2), g_strdup ("yes"));
+				break;
+			case TAG_EAP:
+				if (!allowed)
+					g_hash_table_insert (hash, g_strdup (NM_L2TP_KEY_REFUSE_EAP), g_strdup ("yes"));
+				break;
+			default:
+				break;
+			}
+
+			valid = gtk_tree_model_iter_next (model, &iter);
 		}
-
-		valid = gtk_tree_model_iter_next (model, &iter);
 	}
 
 	widget = GTK_WIDGET (gtk_builder_get_object (builder, "ppp_mtu_spinbutton"));
