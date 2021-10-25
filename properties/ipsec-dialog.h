@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /***************************************************************************
  *
  * Copyright (C) 2011 Geo Carncross, <geocar@gmail.com>
@@ -13,10 +13,10 @@
 
 #include <nm-connection.h>
 
-GtkWidget *ipsec_dialog_new (GHashTable *hash);
+GtkWidget *ipsec_dialog_new(GHashTable *hash);
 
-GHashTable *ipsec_dialog_new_hash_from_connection (NMConnection *connection, GError **error);
+GHashTable *ipsec_dialog_new_hash_from_connection(NMConnection *connection, GError **error);
 
-GHashTable *ipsec_dialog_new_hash_from_dialog (GtkWidget *dialog, GError **error);
+GHashTable *ipsec_dialog_new_hash_from_dialog(GtkWidget *dialog, GError **error);
 
 #endif

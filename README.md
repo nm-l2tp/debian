@@ -1,17 +1,12 @@
 # NetworkMananger-l2tp
 
-----
-If you wish to distribute NetworkManager-l2tp 1.8.6 binaries for a Linux
-distribution, please note that there is a GPL/OpenSSL license conflict
-with OpenSSL < 3.0.0 on Linux distibutions that do not consider OpenSSL
-(or LibreSSL) to be a "System Library". See release notes for further details:
-* https://github.com/nm-l2tp/NetworkManager-l2tp/releases
-----
-
-NetworkManager-l2tp is a VPN plugin for NetworkManager 1.8 and later which
+NetworkManager-l2tp is a VPN plugin for NetworkManager 1.20 and later which
 provides support for L2TP and L2TP/IPsec (i.e. L2TP over IPsec) connections.
 
-For L2TP support, it uses xl2tpd ( https://www.xelerance.com/software/xl2tpd/ )
+For L2TP support, it uses either of the following :
+* kl2tpd from Katalix's go-l2tp project
+  ( https://github.com/katalix/go-l2tp )
+* xl2tpd ( https://www.xelerance.com/software/xl2tpd/ )
 
 For IPsec support, it uses either of the following :
 * Libreswan ( https://libreswan.org )
@@ -25,15 +20,14 @@ For machine authentication it supports either:
 * Pre-shared key (PSK).
 * TLS certificates.
 
-For TLS user certificate support, the ppp package has to have the EAP-TLS patch
-for pppd applied to the ppp source code (which many Linux distributions already
-do) :
+For TLS user certificate support, ppp >= 2.4.9 is required or the EAP-TLS
+patch for pppd needs to be applied to the ppp source code for older versions :
 
 * https://www.nikhef.nl/~janjust/ppp/
 
-The configure script will attempt to determine if the EAP-TLS patch for pppd
-has been applied and will disable the build time TLS user certificate support
-if it can not detect it has been applied.
+The configure script will attempt to determine if pppd EAP-TLS support is
+available and will disable the build time TLS user certificate support if it
+can not be detected.
 
 This VPN plugin auto detects the following TLS certificate and private key file
 formats by looking at the file contents and not the file extension :
@@ -49,9 +43,10 @@ please visit the Wiki :
 ## Table of Contents
 
 - [Building](#building)
-    - [Debian >= 10 and Ubuntu >= 18.04 (AMD64, i.e. x86-64)](#debian--10-and-ubuntu--1804-amd64-ie-x86-64)
-    - [Fedora and Red Hat Enterprise Linux 8 (x86-64)](#fedora-and-red-hat-enterprise-linux-8-x86-64)
-    - [openSUSE (x86-64)](#opensuse-x86-64)
+    - [Debian 10 and Ubuntu 20.04](#debian-10-and-ubuntu-2004-amd64-ie-x86-64)
+    - [Fedora 35](#fedora-35-x86-64)
+    - [Red Hat Enterprise Linux 8](#red-hat-enterprise-linux-8-x86-64)
+    - [openSUSE Tumbleweed](#opensuse-tumbleweed-x86-64)
 - [VPN connection profile files](#vpn-connection-profile-files)
 - [Run-time generated files](#run-time-generated-files)
 - [Password protecting the libreswan NSS database](#password-protecting-the-libreswan-nss-database)
@@ -63,12 +58,15 @@ please visit the Wiki :
   - [Libreswan Custom Debugging](#libreswan-custom-debugging)
     - [Debian and Ubuntu](#debian-and-ubuntu-1)
     - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux-1)
+    - [openSUSE](#opensuse-1)
   - [strongSwan Custom Debugging](#strongswan-custom-debugging)
     - [Debian and Ubuntu](#debian-and-ubuntu-2)
     - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux-2)
-    - [openSUSE](#opensuse-1)
+    - [openSUSE](#opensuse-2)
 - [Issue with blacklisting of L2TP kernel modules](#issue-with-blacklisting-of-l2tp-kernel-modules)
-- [Issue with not stopping system xl2tpd service](#issue-with-not-stopping-system-xl2tpd-service)
+- [L2TP connection issues with UDP source port 1701](#l2tp-connection-issues-with-udp-source-port-1701)
+  - [Unable to establish L2TP connection without UDP source port 1701](#unable-to-establish-l2tp-connection-without-udp-source-port-1701)
+  - [Unable to establish L2TP connection with UDP source port 1701](#unable-to-establish-l2tp-connection-with-udp-source-port-1701)
 - [IPsec IKEv1 weak legacy algorithms and backwards compatibility](#ipsec-ikev1-weak-legacy-algorithms-and-backwards-compatibility)
 
 ## Building
@@ -78,39 +76,51 @@ please visit the Wiki :
     make
 
 The default ./configure settings aren't reasonable and should be explicitly
-overridden with ./configure arguments. In the configure examples below, you
-may need to change the `--with-pppd-plugin-dir` value to an appropriate
-directory that exists, similarly `--with-nm-ipsec-nss-dir` may need to be
-set to the Libreswan NSS database location if it is not located in
-`/var/lib/ipsec/nss`.
+overridden with ./configure arguments. In the configure examples below, for
+your needs, you may need to change the `--with-pppd-plugin-dir` value to an
+appropriate directory that exists, similarly `--with-nm-ipsec-nss-dir` may
+need to be set to the Libreswan NSS database location if it is not located in
+`/var/lib/ipsec/nss`. The `--enable-libreswan-dh2` switch can be used with
+libreswan < 3.30 or libreswan packages built with `USE_DH2=true` i.e. have
+modp1024 support.
 
-#### Debian >= 10 and Ubuntu >= 18.04 (AMD64, i.e. x86-64)
+#### Debian 10 and Ubuntu 20.04 (AMD64, i.e. x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib/x86_64-linux-gnu \
       --libexecdir=/usr/lib/NetworkManager \
       --runstatedir=/run \
-      --with-nm-ipsec-nss-dir=/var/lib/ipsec/nss \
+      --enable-libreswan-dh2 \
       --with-pppd-plugin-dir=/usr/lib/pppd/2.4.7
 
-#### Fedora and Red Hat Enterprise Linux 8 (x86-64)
+#### Fedora 35 (x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib64 \
       --localstatedir=/var \
-      --with-nm-ipsec-nss-dir=/var/lib/ipsec/nss \
+      --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.9
+
+#### Red Hat Enterprise Linux 8 (x86-64)
+
+    ./configure \
+      --disable-static --prefix=/usr \
+      --sysconfdir=/etc --libdir=/usr/lib64 \
+      --localstatedir=/var \
+      --enable-libreswan-dh2 \
+      --with-nm-ipsec-nss-dir=/etc/ipsec.d \
       --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.7
 
-#### openSUSE (x86-64)
+#### openSUSE Tumbleweed (x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib64 \
       --libexecdir=/usr/lib \
       --localstatedir=/var \
-      --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.7
+      --enable-libreswan-dh2 \
+      --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.9
 
 ## VPN connection profile files
 
@@ -161,7 +171,13 @@ password is stored:
 For Systemd based Linux distributions logging goes to the Systemd journal
 which can be viewed by issuing the following :
 
-    journalctl --unit=NetworkManager
+    journalctl --no-hostname _SYSTEMD_UNIT=NetworkManager.service + SYSLOG_IDENTIFIER=pppd
+
+if using go-l2tp's kl2tpd, it is recommended to issue the following :
+
+    journalctl --no-hostname _SYSTEMD_UNIT=NetworkManager.service + _COMM=kl2tpd + SYSLOG_IDENTIFIER=pppd
+
+For some versions of Fedora, libreswan logging also goes to `/var/log/pluto.log`.
 
 For non-Systemd based Linux distributions, view the appropriate system log
 file which is most likely located under `/var/log/`.
@@ -187,9 +203,8 @@ the VPN connection is disconnected :
 then start your VPN connection and reproduce the problem.
 
 For Systemd based Linux distributions when increasing the debugging output
-by running `nm-l2tp-service --debug` on the command-line, do not use
-`journalctl --unit=NetworkManager` as you may not see all the logs, instead
-issue:
+by running `nm-l2tp-service --debug` on the command-line, you may need to
+issue the following to see more log output:
 
     journalctl -b
 
@@ -214,6 +229,9 @@ the command-line :
 
 #### Fedora and Red Hat Enterprise Linux
     sudo PLUTODEBUG="all proposal-parser" /usr/libexec/nm-l2tp-service --debug
+
+#### openSUSE
+    sudo PLUTODEBUG="all proposal-parser" /usr/lib/nm-l2tp-service --debug
 
 ### strongSwan Custom Debugging
 
@@ -241,17 +259,21 @@ and LEVEL is: -1|0|1|2|3|4
 
 ## Issue with blacklisting of L2TP kernel modules
 
-For compatibility with Microsoft L2TP servers (and with later kernel updates,
-other L2TP servers), L2TP kernel modules are required.
+go-l2tp's kl2tpd requires `l2tp_ppp` and `l2tp_netlink` kernel modules which
+will fail to auto-load if the  kernel modules are blacklisted.
 
-If you see the following error message, then chances are that the `l2tp_ppp`
-and `l2tp_netlink` kernel modules are blacklisted :
+If you are using xl2tpd and see the following error message, then chances are
+that the `l2tp_ppp` and `l2tp_netlink` kernel modules are blacklisted :
 ```
 xl2tpd[1234]: L2TP kernel support not detected (try modprobing l2tp_ppp and pppol2tp)
 ```
 
-`modprobe l2tp_ppp` (or `modprobe pppol2tp` for older kernels) can be used as a
-temporary workaround instead of the permanent blacklist removal as described below.
+For xl2tpd compatibility with Microsoft L2TP servers (and some other L2TP
+servers), L2TP kernel modules are required.
+
+`sudo modprobe l2tp_ppp` (or `sudo modprobe pppol2tp` for older kernels) can
+be used as a temporary workaround, but it is recommended to do a blacklist
+removal as described further which provides a permanent solution.
 
 The following is an extract from _"Enhanced security of auto-loading kernel
 modules in RHEL 8 "_ web page :
@@ -288,27 +310,96 @@ sudo sed -e '/blacklist l2tp_netlink/s/^b/#b/g' -i /etc/modprobe.d/l2tp_netlink-
 sudo sed -e '/blacklist l2tp_ppp/s/^b/#b/g' -i /etc/modprobe.d/l2tp_ppp-blacklist.conf
 ```
 
-## Issue with not stopping system xl2tpd service
+## L2TP connection issues with UDP source port 1701
 
-NetworkManager-l2tp starts its own instance of xl2tpd and if the system xl2tpd
-service is running, its own xl2tpd instance will not be able to use UDP port
-1701, so will use an ephemeral port (i.e. random high port).
+First some examples showing successful L2TP connections demonstrating source
+port and ephemeral port terminologies used by the subsequent issues.
 
-Although the use of an ephemeral port is considered acceptable in RFC3193, the
-L2TP/IPsec standard co-authored by Microsoft and Cisco, there are some
-L2TP/IPsec servers and/or firewalls that will have issues if an ephemeral port
-is used.
+The following example uses network diagnostic tools `netstat` and the newer
+`ss` to show a successful L2TP connection between a client with its local
+address (source address and port) and a server with its foreign/peer address
+and port, where the source port is 1701.
+
+```
+$ netstat -u -n
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+udp        0      0 10.184.42.84:1701      123.45.6.78:1701        ESTABLISHED
+
+$ ss -u -n
+Recv-Q   Send-Q         Local Address:Port        Peer Address:Port   Process
+0        0               10.184.42.84:1701         123.45.6.78:1701
+```
+
+The following shows a successful L2TP connection where the source port is an
+ephemeral port (i.e. random high port), in this example it is 45575.
+
+```
+$ netstat -un
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+udp        0      0 10.184.42.84:45575     123.45.6.78:1701        ESTABLISHED
+
+$ ss -u -n
+Recv-Q   Send-Q         Local Address:Port        Peer Address:Port   Process
+0        0               10.184.42.84:45575        123.45.6.78:1701
+```
+### Unable to establish L2TP connection without UDP source port 1701
+
+There are some L2TP/IPsec servers that will reject L2TP connections when an
+ephemeral source port is used (i.e. when UDP source port 1701 is not used),
+even though the use of an ephemeral port is considered acceptable in RFC3193,
+the L2TP/IPsec standard co-authored by Microsoft and Cisco.
+
+When NetworkManager-l2tp tries to start its own instance of xl2tpd or kl2tpd,
+if UDP port 1701 is not free (e.g. system xl2tpd is listening on UDP port
+ 1701), an ephemeral source port will be used.
+
+The following `netstat` and `ss` command-lines can be used to check if there
+is system xl2tpd (or some other daemon) listening on UDP port 1701 :
+
+```
+$ sudo netstat -unlp | grep 1701
+udp        0      0 0.0.0.0:1701            0.0.0.0:*                           4123/xl2tpd
+
+$ sudo ss -unlp | grep 1701
+UNCONN 0      0                               0.0.0.0:1701         0.0.0.0:*     users:(("xl2tpd",pid=4123,fd=3))
+```
 
 Stopping the system xl2tpd service should free UDP port 1701 and on systemd
 based Linux distributions, the xl2tpd service can be stopped with the
 following:
 
-    sudo systemctl stop xl2tpd
+    sudo systemctl stop xl2tpd.service
 
 If stopping the xl2tpd service fixes your VPN connection issue, you can
 disable the xl2tpd service from starting at boot time with :
 
-    sudo systemctl disable xl2tpd
+    sudo systemctl disable xl2tpd.service
+
+There are some cases where disabling a service doesn't stop it from being
+started at boot time. You can check if the xl2tp service is still running
+with the following :
+
+    systemctl disable xl2tpd.service
+
+If it is still running, you can issue the following to ensure is isn't started
+at boot time:
+
+    sudo systemctl mask xl2tpd.service
+
+### Unable to establish L2TP connection with UDP source port 1701
+
+Generally NAT-Traversal does not work for multiple L2TP clients behind the
+same NAT if the clients are all using UDP source port 1701, as the server is
+unable to differentiate between multiple L2TP connections coming from the same
+NAT.
+
+For NetworkManager-l2tp the simplest workaround to allow the server to
+differentiate between multiple L2TP connections from the same NAT is to use an
+ephemeral source port. Either click the "Use L2TP ephemeral source port"
+checkbox in the settings, or enable and start the system xl2tpd.
+
+Some L2TP/IPsec servers can be configured to use a connmark plugin (or
+similar) to differentiate between L2TP connections from the same NAT.
 
 ## IPsec IKEv1 weak legacy algorithms and backwards compatibility
 

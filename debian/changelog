@@ -1,3 +1,17 @@
+network-manager-l2tp (1.20.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump Standards-Version to 4.6.0
+  * Fix capitalization error in package description
+  * Update dependencies for NetworkManager >= 1.20.0
+  * Remove redundant GPLv2/OpenSSL license conflict patch
+  * Remove redundant intltool Build-Depends
+  * Remove obsolete debian/network-manager-l2tp.maintscript
+  * Drop override for dh_missing
+    No longer needed with debhelper-compat 13
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Tue, 26 Oct 2021 09:30:00 +1000
+
 network-manager-l2tp (1.8.6-1) experimental; urgency=medium
 
   * New upstream release.

@@ -3,8 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper-compat (= 13),
-               intltool,
-               libnm-dev (>= 1.8.0),
+               libnm-dev (>= 1.20.0),
                libnma-dev (>= 1.8.0),
                ppp-dev (>= 2.4.7-1+1),
                libsecret-1-dev (>= 0.18),
@@ -12,7 +11,7 @@ Build-Depends: debhelper-compat (= 13),
                libglib2.0-dev (>= 2.32),
                libnss3-dev,
                libssl-dev
-Standards-Version: 4.5.1
+Standards-Version: 4.6.0
 Rules-Requires-Root: no
 Vcs-Git: https://github.com/nm-l2tp/debian.git
 Vcs-Browser: https://github.com/nm-l2tp/debian.git
@@ -22,13 +21,13 @@ Package: network-manager-l2tp
 Architecture: linux-any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         network-manager (>= 1.8.0),
+         network-manager (>= 1.20.0),
          xl2tpd,
          strongswan | libreswan
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when
- available. It manages ethernet, WiFi, mobile broadband (WWAN), and PPPoE
+ available. It manages ethernet, Wi-Fi, mobile broadband (WWAN), and PPPoE
  devices, and provides VPN integration with a variety of different VPN
  services.
  .
@@ -42,7 +41,7 @@ Depends: ${shlibs:Depends},
 Description: network management framework (L2TP plugin GNOME GUI)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when
- available. It manages ethernet, WiFi, mobile broadband (WWAN), and PPPoE
+ available. It manages ethernet, Wi-Fi, mobile broadband (WWAN), and PPPoE
  devices, and provides VPN integration with a variety of different VPN
  services.
  .
