@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.14"/>
   <object class="GtkBox" id="l2tp-vbox">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">12</property>
+    <property name="can_focus">True</property>
+    <property name="tooltip_text" translatable="yes">Do not attempt to use UDP port 1701 as the L2TP source port,
+instead use an ephemeral source port (i.e. random high port)
+
+Ephemeral L2TP source ports are often required to allow multiple
+L2TP clients behind the same NAT.</property>
     <property name="orientation">vertical</property>
     <property name="spacing">16</property>
     <child>
@@ -571,6 +575,25 @@ config: auth-user-pass</property>
         <property name="position">2</property>
       </packing>
     </child>
+    <child>
+      <object class="GtkCheckButton" id="ephemeral_checkbutton">
+        <property name="label" translatable="yes">Use L2TP _ephemeral source port</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="tooltip_text" translatable="yes">Do not use UDP port 1701 for L2TP source port even if it is free,
+will use an ephemeral port (i.e. random high port) instead.
+May be required to allow multiple L2TP clients behind same NAT.</property>
+        <property name="halign">start</property>
+        <property name="use_underline">True</property>
+        <property name="draw_indicator">True</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
   </object>
   <object class="GtkSizeGroup" id="labels">
     <property name="ignore_hidden">True</property>
@@ -600,7 +623,7 @@ config: auth-user-pass</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="skip_pager_hint">True</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -1004,20 +1027,6 @@ config: ipsec-psk</property>
                         <property name="can_focus">False</property>
                         <property name="row_spacing">4</property>
                         <child>
-                          <object class="GtkLabel" id="label_phase2">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="margin_left">12</property>
-                            <property name="label" translatable="yes">Phase2 Algorithms:</property>
-                            <property name="xalign">0</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkEntry" id="ipsec_phase1_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -1041,20 +1050,6 @@ config: ipsec-esp &lt;proposals&gt;</property>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="top_attach">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label_phase1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="margin_left">12</property>
-                            <property name="label" translatable="yes">Phase1 Algorithms:</property>
-                            <property name="xalign">0</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">1</property>
                           </packing>
                         </child>
                         <child>
@@ -1143,10 +1138,11 @@ config: ipsec-salifetime &lt;lifetime&gt;</property>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="phase1_lifetime_check">
-                            <property name="label" translatable="yes">Phase_1 Lifetime:</property>
+                            <property name="label" translatable="yes">Phase1 Lifetime:</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="halign">start</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
@@ -1157,29 +1153,17 @@ config: ipsec-salifetime &lt;lifetime&gt;</property>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="phase2_lifetime_check">
-                            <property name="label" translatable="yes">Phase_2 Lifetime:</property>
+                            <property name="label" translatable="yes">Phase2 Lifetime:</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="halign">start</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
                             <property name="top_attach">4</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="ipsec_gateway_id_label">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="margin_left">12</property>
-                            <property name="label" translatable="yes">Remote ID:</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
                           </packing>
                         </child>
                         <child>
@@ -1195,6 +1179,51 @@ ipsec.secrets: &lt;ID&gt;</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="phase1_check">
+                            <property name="label" translatable="yes">Phase1 Algorithms:</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="halign">start</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="phase2_check">
+                            <property name="label" translatable="yes">Phase2 Algorithms:</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="halign">start</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="remote_id_check">
+                            <property name="label" translatable="yes">Remote ID:</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="halign">start</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
                             <property name="top_attach">0</property>
                           </packing>
                         </child>
@@ -1337,6 +1366,13 @@ config: ipsec-pfs &lt;no/yes&gt;</property>
       </row>
     </data>
   </object>
+  <object class="GtkAdjustment" id="ppp_mrru_adjustment">
+    <property name="lower">1500</property>
+    <property name="upper">4500</property>
+    <property name="value">1600</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="ppp_mru_adjustment">
     <property name="lower">576</property>
     <property name="upper">1500</property>
@@ -1360,7 +1396,7 @@ config: ipsec-pfs &lt;no/yes&gt;</property>
     <property name="icon_name">stock-preferences</property>
     <property name="type_hint">dialog</property>
     <property name="skip_pager_hint">True</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">
@@ -1770,7 +1806,7 @@ config: noaccomp (when unchecked)</property>
                   <object class="GtkLabel" id="label11">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Echo</property>
+                    <property name="label" translatable="yes">Misc</property>
                     <property name="xalign">0</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
@@ -1788,15 +1824,167 @@ config: noaccomp (when unchecked)</property>
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkCheckButton" id="ppp_send_echo_packets">
-                        <property name="label" translatable="yes">Send PPP _echo packets</property>
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="tooltip_text" translatable="yes">Send LCP echo-requests to find out whether peer is alive.
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkCheckButton" id="ppp_send_echo_packets">
+                            <property name="label" translatable="yes">Send PPP _echo packets</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="tooltip_text" translatable="yes">Send LCP echo-requests to find out whether peer is alive.
 config: lcp-echo-failure and lcp-echo-interval</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
+                            <property name="halign">start</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkCheckButton" id="ppp_usemultilink">
+                                <property name="label" translatable="yes">_Multilink PPP MRRU:</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="tooltip_text" translatable="yes">Try to negotiate a PPP Multilink on a single connection.
+config: mrru</property>
+                                <property name="halign">start</property>
+                                <property name="use_underline">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="ppp_mrru_spinbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="tooltip_text" translatable="yes">Try to negotiate a PPP Multilink on a single connection.
+config: mrru</property>
+                                <property name="max_length">4</property>
+                                <property name="width_chars">4</property>
+                                <property name="max_width_chars">4</property>
+                                <property name="text" translatable="yes">1400</property>
+                                <property name="adjustment">ppp_mrru_adjustment</property>
+                                <property name="climb_rate">1</property>
+                                <property name="value">1600</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="hbox5">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkLabel" id="label13">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">MTU:</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="ppp_mtu_spinbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="max_length">4</property>
+                                <property name="width_chars">4</property>
+                                <property name="max_width_chars">4</property>
+                                <property name="text" translatable="yes">1400</property>
+                                <property name="adjustment">ppp_mtu_adjustment</property>
+                                <property name="climb_rate">1</property>
+                                <property name="value">1400</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="hbox6">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkLabel" id="label16">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">MRU:</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSpinButton" id="ppp_mru_spinbutton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="max_length">4</property>
+                                <property name="width_chars">4</property>
+                                <property name="max_width_chars">4</property>
+                                <property name="text" translatable="yes">1400</property>
+                                <property name="adjustment">ppp_mru_adjustment</property>
+                                <property name="climb_rate">1</property>
+                                <property name="value">1400</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -1814,117 +2002,7 @@ config: lcp-echo-failure and lcp-echo-interval</property>
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="vbox13">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">1</property>
-                <child>
-                  <object class="GtkLabel" id="label12">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Misc</property>
-                    <property name="xalign">0</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="spacing">12</property>
-                    <child>
-                      <object class="GtkLabel" id="label13">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">MTU :</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="ppp_mtu_spinbutton">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="max_length">4</property>
-                        <property name="width_chars">4</property>
-                        <property name="max_width_chars">4</property>
-                        <property name="adjustment">ppp_mtu_adjustment</property>
-                        <property name="climb_rate">1</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="spacing">12</property>
-                    <child>
-                      <object class="GtkLabel" id="label16">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">MRU :</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSpinButton" id="ppp_mru_spinbutton">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="max_length">4</property>
-                        <property name="width_chars">4</property>
-                        <property name="max_width_chars">4</property>
-                        <property name="adjustment">ppp_mru_adjustment</property>
-                        <property name="climb_rate">1</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>

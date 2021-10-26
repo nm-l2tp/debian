@@ -1,7 +1,7 @@
 AC_PREREQ(2.60)
 
 AC_INIT(NetworkManager-l2tp,
-        1.8.6,
+        1.20.0,
         https://github.com/nm-l2tp/NetworkManager-l2tp/issues,
         NetworkManager-l2tp)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
@@ -62,7 +62,7 @@ AC_ARG_WITH([pppd-plugin-dir], AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [pat
 if test -n "$with_pppd_plugin_dir" ; then
 	PPPD_PLUGIN_DIR="$with_pppd_plugin_dir"
 else
-	PPPD_PLUGIN_DIR="${libdir}/pppd/2.4.8"
+	PPPD_PLUGIN_DIR="${libdir}/pppd/2.4.9"
 fi
 AC_SUBST(PPPD_PLUGIN_DIR)
 
@@ -152,36 +152,29 @@ dnl
 dnl GNOME support
 dnl
 AC_ARG_WITH(gnome, AS_HELP_STRING([--without-gnome], [Build NetworkManager-l2tp without GNOME support, e.g. vpn service only]), [], [with_gnome_specified=no])
-AC_ARG_WITH(libnm-glib, AS_HELP_STRING([--with-libnm-glib], [Build NetworkManager-l2tp with libnm-glib comatibility (depreacted)]), [], [with_libnm_glib_specified=no])
-if test "$with_libnm_glib_specified" != no -a "$with_libnm_glib" != no; then
-	if test "$with_gnome_specified" != no -a "$with_gnome" == no; then
-		AC_MSG_ERROR(Building --with-libnm-glib conflicts with --without-gnome)
-	fi
-fi
 if test "$with_gnome" != no; then
 	with_gnome=yes
 fi
-if test "$with_libnm_glib_specified" == no; then
-	with_libnm_glib=no
-fi
-if test "$with_libnm_glib" != yes; then
-	with_libnm_glib=no
-fi
 AM_CONDITIONAL(WITH_GNOME, test "$with_gnome" != no)
-AM_CONDITIONAL(WITH_LIBNM_GLIB, test "$with_libnm_glib" != no)
 
 AC_ARG_ENABLE(absolute-paths, AS_HELP_STRING([--enable-absolute-paths], [Use absolute paths to in .name files. Useful for development. (default is no)]))
+
+dnl
+dnl translation support
+dnl
+
+# FIXME: Remove AM_GNU_GETTEXT_VERSION once autoreconf supports REQUIRE_VERSION
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.8])
 
 GETTEXT_PACKAGE=NetworkManager-l2tp
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 
-IT_PROG_INTLTOOL([0.35])
-AM_GLIB_GNU_GETTEXT
-
 # gio-unix will require glib and gio
-PKG_CHECK_MODULES(GLIB, gio-unix-2.0 >= 2.32)
-GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_32"
+PKG_CHECK_MODULES(GLIB, gio-unix-2.0 >= 2.40)
+GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_40"
 
 if test x"$with_gnome" != xno; then
 	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.14)
@@ -189,23 +182,11 @@ if test x"$with_gnome" != xno; then
 
 	PKG_CHECK_MODULES(LIBNMA, libnma >= 1.8.0)
 	PKG_CHECK_MODULES(LIBSECRET, libsecret-1 >= 0.18)
-
-	if test x"$with_libnm_glib" != xno; then
-		PKG_CHECK_MODULES(LIBNM_GTK, libnm-gtk >= 1.8.0)
-		PKG_CHECK_MODULES(LIBNM_GLIB,
-			NetworkManager >= 1.8.0
-			libnm-util >= 1.8.0
-			libnm-glib >= 1.8.0
-			libnm-glib-vpn >= 1.8.0);
-
-		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_8"
-		LIBNM_GLIB_CFLAGS="$LIBNM_GLIB_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_8"
-	fi
 fi
 
-PKG_CHECK_MODULES(LIBNM, libnm >= 1.8.0)
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_8"
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_8"
+PKG_CHECK_MODULES(LIBNM, libnm >= 1.20)
+LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_20"
+LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_20"
 
 NM_VPN_SERVICE_DIR=`$PKG_CONFIG --define-variable prefix='\${prefix}' --variable vpnservicedir libnm`
 AC_SUBST(NM_VPN_SERVICE_DIR)
@@ -242,7 +223,6 @@ echo ""
 echo "Build configuration: "
 echo "  --with-dist-version=$ac_distver"
 echo "  --with-gnome=$with_gnome"
-echo "  --with-libnm-glib=$with_libnm_glib"
 echo "  --with-pppd-plugin-dir=$PPPD_PLUGIN_DIR"
 echo "  --enable-absolute-paths=$enable_absolute_paths"
 echo "  --enable-more-warnings=$set_more_warnings"

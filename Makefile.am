@@ -39,6 +39,7 @@ shared_sources = \
 
 EXTRA_DIST += \
 	README.md \
+	autogen.sh \
 	shared/README
 
 src_cppflags = \
@@ -144,6 +145,7 @@ plugin_sources = \
 
 editor_sources = \
 	$(shared_sources) \
+	shared/nm-utils/nm-glib.h \
 	shared/nm-utils/nm-vpn-plugin-utils.h \
 	shared/nm-l2tp-crypto-openssl.c \
 	shared/nm-l2tp-crypto-openssl.h \
@@ -228,33 +230,6 @@ properties_libnm_vpn_plugin_l2tp_editor_la_LDFLAGS = \
 
 ###############################################################################
 
-if WITH_LIBNM_GLIB
-plugin_LTLIBRARIES += properties/libnm-l2tp-properties.la
-endif
-
-properties_libnm_l2tp_properties_la_SOURCES = \
-	shared/nm-utils/nm-glib.h \
-	$(plugin_sources) \
-	$(editor_sources)
-properties_libnm_l2tp_properties_la_CFLAGS = \
-	$(GLIB_CFLAGS) \
-	$(GTK_CFLAGS) \
-	$(LIBNM_GLIB_CFLAGS) \
-	$(LIBNM_GTK_CFLAGS)
-properties_libnm_l2tp_properties_la_CPPFLAGS = \
-	-DNETWORKMANAGER_COMPILATION='NM_NETWORKMANAGER_COMPILATION_LIB|NM_NETWORKMANAGER_COMPILATION_WITH_LIBNM_UTIL' \
-	$(properties_cppflags)
-properties_libnm_l2tp_properties_la_LIBADD = \
-	$(GLIB_LIBS) \
-	$(GTK_LIBS) \
-	$(LIBNM_GLIB_LIBS) \
-	$(LIBNM_GLIB_LIBS)
-properties_libnm_l2tp_properties_la_LDFLAGS = \
-	-avoid-version \
-	-Wl,--version-script="$(srcdir)/properties/libnm-l2tp-properties.ver"
-
-###############################################################################
-
 if WITH_GNOME
 libexec_PROGRAMS += auth-dialog/nm-l2tp-auth-dialog
 endif
@@ -288,28 +263,15 @@ auth_dialog_nm_l2tp_auth_dialog_LDADD = \
 
 ###############################################################################
 
-if WITH_LIBNM_GLIB
-# Install a file with full path to plugins for an old gnome-shell
-# https://bugzilla.gnome.org/show_bug.cgi?id=693590
-install-data-hook:
-	mkdir -p $(DESTDIR)$(sysconfdir)/NetworkManager/VPN
-	sed -e "1s|^|# This file is obsoleted by a file in $(NM_VPN_SERVICE_DIR)\n\n|" \
-	    -e 's|[@]LIBEXECDIR[@]|$(libexecdir)|g' \
-	    -e 's|[@]PLUGINDIR[@]|@NM_PLUGIN_DIR@|g' \
-	    <$(srcdir)/nm-l2tp-service.name.in \
-	    >$(DESTDIR)$(sysconfdir)/NetworkManager/VPN/nm-l2tp-service.name
-
-uninstall-hook:
-	 rm -f $(DESTDIR)$(sysconfdir)/NetworkManager/VPN/nm-l2tp-service.name
-endif
-
 appdatadir = $(datadir)/metainfo
+appdata_in_files = appdata/network-manager-l2tp.metainfo.xml.in
 appdata_files = $(appdata_in_files:.xml.in=.xml)
 if WITH_GNOME
 appdata_DATA = $(appdata_files)
+
+$(appdata_DATA): $(appdata_in_files)
+	$(AM_V_GEN)$(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
 endif
-appdata_in_files = appdata/network-manager-l2tp.metainfo.xml.in
-@INTLTOOL_XML_RULE@
 
 nm-l2tp-service.name: $(srcdir)/nm-l2tp-service.name.in
 	$(AM_V_GEN) sed -e 's|[@]LIBEXECDIR[@]|$(libexecdir)|g' \
@@ -320,18 +282,10 @@ EXTRA_DIST += \
 	nm-l2tp-service.name.in \
 	$(dbusservice_DATA) \
 	$(appdata_in_files) \
-	$(appdata_files) \
-	intltool-extract.in \
-	intltool-merge.in \
-	intltool-update.in
+	$(appdata_files)
 
 CLEANFILES += \
 	$(nmvpnservice_DATA) \
 	$(appdata_files)
-
-DISTCLEANFILES = \
-	intltool-extract \
-	intltool-merge \
-	intltool-update
 
 ACLOCAL_AMFLAGS = -I m4
