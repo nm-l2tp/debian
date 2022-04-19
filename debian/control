@@ -5,10 +5,13 @@ Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper-compat (= 13),
                libnm-dev (>= 1.20.0),
                libnma-dev (>= 1.8.0),
+               libnma-gtk4-dev (>= 1.8.33),
                ppp-dev (>= 2.4.7-1+1),
                libsecret-1-dev (>= 0.18),
-               libgtk-3-dev (>= 3.4),
-               libglib2.0-dev (>= 2.32),
+               libgtk-3-dev (>= 3.16),
+               libgtk-4-dev (>= 4.0),
+               libglib2.0-dev (>= 2.34),
+               libgtk-4-bin (>= 4.6.2),
                libnss3-dev,
                libssl-dev
 Standards-Version: 4.6.0
@@ -21,7 +24,7 @@ Package: network-manager-l2tp
 Architecture: linux-any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         network-manager (>= 1.20.0),
+         network-manager,
          xl2tpd,
          strongswan | libreswan
 Description: network management framework (L2TP plugin core)

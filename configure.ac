@@ -1,9 +1,9 @@
-AC_PREREQ(2.60)
+AC_PREREQ([2.69])
 
-AC_INIT(NetworkManager-l2tp,
-        1.20.0,
-        https://github.com/nm-l2tp/NetworkManager-l2tp/issues,
-        NetworkManager-l2tp)
+AC_INIT([NetworkManager-l2tp],
+        [1.20.2],
+        [https://github.com/nm-l2tp/NetworkManager-l2tp/issues],
+        [NetworkManager-l2tp])
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
 AM_MAINTAINER_MODE
 AM_SILENT_RULES([yes])
@@ -33,10 +33,10 @@ dnl
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PATH_PROG(GLIB_COMPILE_RESOURCES, glib-compile-resources)
 
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 AC_CHECK_PROG([has_file], file, yes, no)
 if test x$has_file = xno ; then
@@ -157,6 +157,15 @@ if test "$with_gnome" != no; then
 fi
 AM_CONDITIONAL(WITH_GNOME, test "$with_gnome" != no)
 
+AC_ARG_WITH(gtk4, AS_HELP_STRING([--with-gtk4], [Build NetworkManager-l2tp with libnma-gtk4 support]), [], [with_gtk4_specified=no])
+if test "$with_gtk4_specified" == no; then
+	with_gtk4=no
+fi
+if test "$with_gtk4" != yes; then
+	with_gtk4=no
+fi
+AM_CONDITIONAL(WITH_GTK4, test "$with_gtk4" != no)
+
 AC_ARG_ENABLE(absolute-paths, AS_HELP_STRING([--enable-absolute-paths], [Use absolute paths to in .name files. Useful for development. (default is no)]))
 
 dnl
@@ -175,13 +184,22 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 # gio-unix will require glib and gio
 PKG_CHECK_MODULES(GLIB, gio-unix-2.0 >= 2.40)
 GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_40"
+GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_40"
 
 if test x"$with_gnome" != xno; then
-	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.14)
-	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_14"
+	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.16)
+	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_16"
+	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MAX_ALLOWED=GDK_VERSION_3_16"
 
 	PKG_CHECK_MODULES(LIBNMA, libnma >= 1.8.0)
 	PKG_CHECK_MODULES(LIBSECRET, libsecret-1 >= 0.18)
+fi
+
+if test x"$with_gtk4" != xno; then
+	PKG_CHECK_MODULES(GTK4, gtk4 >= 4.0)
+	GTK4_CFLAGS="$GTK4_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_4_0"
+	GTK4_CFLAGS="$GTK4_CFLAGS -DGDK_VERSION_MAX_ALLOWED=GDK_VERSION_4_0"
+	PKG_CHECK_MODULES(LIBNMA_GTK4, libnma-gtk4 >= 1.8.33)
 fi
 
 PKG_CHECK_MODULES(LIBNM, libnm >= 1.20)
@@ -223,6 +241,7 @@ echo ""
 echo "Build configuration: "
 echo "  --with-dist-version=$ac_distver"
 echo "  --with-gnome=$with_gnome"
+echo "  --with-gtk4=$with_gtk4"
 echo "  --with-pppd-plugin-dir=$PPPD_PLUGIN_DIR"
 echo "  --enable-absolute-paths=$enable_absolute_paths"
 echo "  --enable-more-warnings=$set_more_warnings"

@@ -5,9 +5,12 @@
   <project_license>GPL-2.0+</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <extends>nm-connection-editor.desktop</extends>
+  <extends>org.gnome.Settings.desktop</extends>
   <extends>gnome-control-center.desktop</extends>
   <name>L2TP VPN Client</name>
+  <name xml:lang="ru">Клиент L2TP VPN</name>
   <summary>Client for L2TP based virtual private networks</summary>
+  <summary xml:lang="ru">Клиент для виртуальных частных сетей на основе протокола L2TP</summary>
   <keywords>
     <keyword>network</keyword>
     <keyword>manager</keyword>
@@ -18,19 +21,23 @@
   </keywords>
   <description>
     <p>Support for configuring L2TP based virtual private network connections.</p>
+    <p xml:lang="ru">Помощь в настройке параметров соединений виртуальных частных сетей наоснове протокола L2TP.</p>
     <p>Compatible with L2TP and L2TP over IPsec services.</p>
+    <p xml:lang="ru">Совместим со службами L2TP и L2TP через IPsec.</p>
   </description>
   <screenshots>
     <screenshot type="default">
-      <image width="800" height="592">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.0/appdata/l2tp.png</image>
+      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.2/appdata/l2tp.png</image>
     </screenshot>
     <screenshot type="default">
       <caption>The IPsec options dialog</caption>
-      <image width="800" height="558">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.0/appdata/l2tp-ipsec.png</image>
+      <caption xml:lang="ru">Диалоговое окно настройки параметров IPsec</caption>
+      <image width="800" height="595">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.2/appdata/l2tp-ipsec.png</image>
     </screenshot>
     <screenshot type="default">
       <caption>The PPP options dialog</caption>
-      <image width="800" height="737">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.0/appdata/l2tp-ppp.png</image>
+      <caption xml:lang="ru">Диалоговое окно настройки параметров PPP</caption>
+      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.2/appdata/l2tp-ppp.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/nm-l2tp/NetworkManager-l2tp</url>
@@ -38,4 +45,5 @@
   <update_contact>doug@uq.edu.au</update_contact>
   <translation type="gettext">NetworkManager-l2tp</translation>
   <developer_name>The NetworkManager-L2TP Developers</developer_name>
+  <developer_name xml:lang="ru">Разработчики NetworkManager-L2TP</developer_name>
 </component>

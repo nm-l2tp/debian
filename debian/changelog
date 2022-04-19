@@ -1,3 +1,17 @@
+network-manager-l2tp (1.20.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * Enable GTK 4 support (closes: #1009102)
+  * Add Build-Depends libgtk-4-bin (>= 4.6.2)
+    to ensure gtk4-builder-tool does not need a display
+  * Bump libglib2.0-dev Build-Depends to (>= 2.34)
+  * Bump libgtk-3-dev Build-Depends to (>= 3.16)
+  * Enable all hardening build flags
+  * Drop unnecessary network-manager version contraint
+  * Change debian-branch from master to main in gbp.conf
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Wed, 20 Apr 2022 08:40:00 +1000
+
 network-manager-l2tp (1.20.0-1) unstable; urgency=medium
 
   * New upstream release
