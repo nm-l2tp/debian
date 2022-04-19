@@ -43,8 +43,8 @@ please visit the Wiki :
 ## Table of Contents
 
 - [Building](#building)
-    - [Debian 10 and Ubuntu 20.04](#debian-10-and-ubuntu-2004-amd64-ie-x86-64)
-    - [Fedora 35](#fedora-35-x86-64)
+    - [Debian 11 and Ubuntu 22.04](#debian-11-and-ubuntu-2204-amd64-ie-x86-64)
+    - [Fedora 36](#fedora-36-x86-64)
     - [Red Hat Enterprise Linux 8](#red-hat-enterprise-linux-8-x86-64)
     - [openSUSE Tumbleweed](#opensuse-tumbleweed-x86-64)
 - [VPN connection profile files](#vpn-connection-profile-files)
@@ -63,6 +63,7 @@ please visit the Wiki :
     - [Debian and Ubuntu](#debian-and-ubuntu-2)
     - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux-2)
     - [openSUSE](#opensuse-2)
+- [Libreswan no longer supports IKEv1 packets by default](#libreswan-no-longer-supports-ikev1-packets-by-default)
 - [Issue with blacklisting of L2TP kernel modules](#issue-with-blacklisting-of-l2tp-kernel-modules)
 - [L2TP connection issues with UDP source port 1701](#l2tp-connection-issues-with-udp-source-port-1701)
   - [Unable to establish L2TP connection without UDP source port 1701](#unable-to-establish-l2tp-connection-without-udp-source-port-1701)
@@ -84,22 +85,22 @@ need to be set to the Libreswan NSS database location if it is not located in
 libreswan < 3.30 or libreswan packages built with `USE_DH2=true` i.e. have
 modp1024 support.
 
-#### Debian 10 and Ubuntu 20.04 (AMD64, i.e. x86-64)
+#### Debian 11 and Ubuntu 22.04 (AMD64, i.e. x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib/x86_64-linux-gnu \
       --libexecdir=/usr/lib/NetworkManager \
       --runstatedir=/run \
-      --enable-libreswan-dh2 \
-      --with-pppd-plugin-dir=/usr/lib/pppd/2.4.7
+      --with-pppd-plugin-dir=/usr/lib/pppd/2.4.9
 
-#### Fedora 35 (x86-64)
+#### Fedora 36 (x86-64)
 
     ./configure \
       --disable-static --prefix=/usr \
       --sysconfdir=/etc --libdir=/usr/lib64 \
-      --localstatedir=/var \
+      --runstatedir=/run \
+      --with-gtk4 \
       --with-pppd-plugin-dir=/usr/lib64/pppd/2.4.9
 
 #### Red Hat Enterprise Linux 8 (x86-64)
@@ -256,6 +257,18 @@ and LEVEL is: -1|0|1|2|3|4
 
 #### openSUSE
     sudo CHARONDEBUG="knl 1, ike 2, esp 2, lib 1, cfg 3" /usr/lib/nm-l2tp-service --debug
+
+## Libreswan no longer supports IKEv1 packets by default
+
+On some later Linux distributions, Libreswan no longer supports IKEv1 packets
+by default, the following error occurs if this is the case :
+
+```
+failed to add IKEv1 connection: global ikev1-policy does not allow IKEv1 connections
+```
+
+To re-enable IKEv1, add `ikev1-policy=accept` to the `config setup` section of
+`/etc/ipsec.conf`
 
 ## Issue with blacklisting of L2TP kernel modules
 
