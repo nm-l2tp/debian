@@ -1,7 +1,7 @@
 AC_PREREQ([2.69])
 
 AC_INIT([NetworkManager-l2tp],
-        [1.20.2],
+        [1.20.8],
         [https://github.com/nm-l2tp/NetworkManager-l2tp/issues],
         [NetworkManager-l2tp])
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
@@ -33,10 +33,7 @@ dnl
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_INSTALL
-LT_INIT
 AC_PATH_PROG(GLIB_COMPILE_RESOURCES, glib-compile-resources)
-
-AC_USE_SYSTEM_EXTENSIONS
 
 AC_CHECK_PROG([has_file], file, yes, no)
 if test x$has_file = xno ; then
@@ -186,13 +183,15 @@ PKG_CHECK_MODULES(GLIB, gio-unix-2.0 >= 2.40)
 GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_40"
 GLIB_CFLAGS="$GLIB_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_40"
 
+if test x"$with_gnome" != xno || test x"$with_gtk4" != xno; then
+	PKG_CHECK_MODULES(LIBSECRET, libsecret-1 >= 0.18)
+fi
+
 if test x"$with_gnome" != xno; then
 	PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.16)
 	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MIN_REQUIRED=GDK_VERSION_3_16"
 	GTK_CFLAGS="$GTK_CFLAGS -DGDK_VERSION_MAX_ALLOWED=GDK_VERSION_3_16"
-
 	PKG_CHECK_MODULES(LIBNMA, libnma >= 1.8.0)
-	PKG_CHECK_MODULES(LIBSECRET, libsecret-1 >= 0.18)
 fi
 
 if test x"$with_gtk4" != xno; then

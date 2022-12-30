@@ -1,4 +1,4 @@
 version=4
-opts=pgpsigurlmangle=s/$/.asc/ \
-  https://github.com/nm-l2tp/NetworkManager-l2tp/releases .*/NetworkManager-l2tp-(\d\.\d\d?.\d\d?)\.tar\.xz
-
+opts=searchmode=plain,pgpsigurlmangle=s/$/.asc/ \
+  https://api.github.com/repos/nm-l2tp/NetworkManager-l2tp/releases \
+  https://github.com/nm-l2tp/NetworkManager-l2tp/releases/download/(?:\d[\d.]*)/NetworkManager-l2tp-@ANY_VERSION@@ARCHIVE_EXT@
