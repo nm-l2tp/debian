@@ -1,4 +1,44 @@
 ==========================================================
+NetworkManager-l2tp-1.20.8
+Overview of changes since NetworkManager-l2tp-1.20.6
+==========================================================
+
+Changes:
+* Fix padding of PPP Options dialog.
+* Undo PTP peer & ext GW routing prevention workaround first introduced
+  with NetworkManager-l2tp 1.8.4 as workaround no longer works with
+  NetworkManager 1.36. The actial fix should be done in NetworkManager.
+* Add support for Manual IPv4 configuration options:
+  Address, Netmask and Gateway.
+* Remove deprecated OpenSSL 3 related code
+* Load L2TP kernel modules if NM_L2TP_MODPROBE env variable set.
+
+==========================================================
+NetworkManager-l2tp-1.20.6
+Overview of changes since NetworkManager-l2tp-1.20.4
+==========================================================
+
+Changes:
+* Fix for Libreswan 4.9 and later detection.
+* Fix for ipsec-psk-flags setting not being saved.
+* Fix out-of-bounds access in export_ip4.
+* Add getenv NM_L2TP_XL2TPD_MAX_RETRIES to allow setting the xl2tpd
+  max retries value with an env variable.
+* Drop unused ChangeLog file.
+* Increase IPsec and L2TP daemon wait timeouts for better debugging.
+* Update Georgian (ka) translation.
+
+==========================================================
+NetworkManager-l2tp-1.20.4
+Overview of changes since NetworkManager-l2tp-1.20.2
+==========================================================
+
+Changes:
+* Security fix for properly detecting that strongswan CHILD_SA connection
+  has been estabilished.
+* Fix for libreswan cannot route template policy error.
+
+==========================================================
 NetworkManager-l2tp-1.20.2
 Overview of changes since NetworkManager-l2tp-1.20.0
 ==========================================================
