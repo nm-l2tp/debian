@@ -1,3 +1,12 @@
+network-manager-l2tp (1.20.10-1) unstable; urgency=medium
+
+  * New upstream version 1.20.10.
+  * Install helper binaries into /usr/libexec (Closes: #1054306)
+  * Bump Standards-Version to 4.6.2
+  * Add explicit Build-Depends on pkg-config
+  
+ -- Douglas Kosovic <doug@uq.edu.au>  Tue, 24 Oct 2023 08:03:00 +1000
+
 network-manager-l2tp (1.20.8-1) unstable; urgency=medium
 
   * New upstream release

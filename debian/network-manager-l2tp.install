@@ -1,6 +1,6 @@
 usr/lib/pppd/*/*.so
+usr/libexec/nm-l2tp-service
 usr/lib/NetworkManager/VPN/nm-l2tp-service.name
-usr/lib/NetworkManager/nm-l2tp-service
 usr/lib/*/NetworkManager/libnm-vpn-plugin-l2tp.so
 usr/share/dbus-1/
 usr/share/locale/

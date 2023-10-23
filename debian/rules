@@ -9,7 +9,6 @@ PPPD_PLUGIN_DIR := $(shell dh_ppp --plugin-dir)
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--libexecdir=/usr/lib/NetworkManager \
 		--with-gtk4 \
 		--disable-static \
 		--with-pppd-plugin-dir=$(PPPD_PLUGIN_DIR)

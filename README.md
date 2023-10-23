@@ -1,4 +1,4 @@
-# NetworkMananger-l2tp
+# NetworkManager-l2tp
 
 NetworkManager-l2tp is a VPN plugin for NetworkManager 1.20 and later which
 provides support for L2TP and L2TP/IPsec (i.e. L2TP over IPsec) connections.
@@ -6,14 +6,14 @@ provides support for L2TP and L2TP/IPsec (i.e. L2TP over IPsec) connections.
 For L2TP support, it uses either of the following :
 * kl2tpd from Katalix's go-l2tp project
   ( https://github.com/katalix/go-l2tp )
-* xl2tpd ( https://www.xelerance.com/software/xl2tpd/ )
+* xl2tpd ( https://github.com/xelerance/xl2tpd )
 
 For IPsec support, it uses either of the following :
 * Libreswan ( https://libreswan.org )
 * strongSwan ( https://www.strongswan.org )
 
 For user authentication it supports either:
-* username/pasword credentials.
+* username/password credentials.
 * TLS certificates.
 
 For machine authentication it supports either:
@@ -40,36 +40,6 @@ For details on pre-built packages, known issues and build dependencies,
 please visit the Wiki :
 * https://github.com/nm-l2tp/NetworkManager-l2tp/wiki
 
-## Table of Contents
-
-- [Building](#building)
-    - [Debian 11 and Ubuntu 22.04](#debian-11-and-ubuntu-2204-amd64-ie-x86-64)
-    - [Fedora 36](#fedora-36-x86-64)
-    - [Red Hat Enterprise Linux 8](#red-hat-enterprise-linux-8-x86-64)
-    - [openSUSE Tumbleweed](#opensuse-tumbleweed-x86-64)
-- [VPN connection profile files](#vpn-connection-profile-files)
-- [Run-time generated files](#run-time-generated-files)
-- [Password protecting the libreswan NSS database](#password-protecting-the-libreswan-nss-database)
-- [Debugging](#debugging)
-  - [Increase Debugging Output](#increase-debugging-output)
-    - [Debian and Ubuntu](#debian-and-ubuntu)
-    - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux)
-    - [openSUSE](#opensuse)
-  - [Libreswan Custom Debugging](#libreswan-custom-debugging)
-    - [Debian and Ubuntu](#debian-and-ubuntu-1)
-    - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux-1)
-    - [openSUSE](#opensuse-1)
-  - [strongSwan Custom Debugging](#strongswan-custom-debugging)
-    - [Debian and Ubuntu](#debian-and-ubuntu-2)
-    - [Fedora and Red Hat Enterprise Linux](#fedora-and-red-hat-enterprise-linux-2)
-    - [openSUSE](#opensuse-2)
-- [Libreswan no longer supports IKEv1 packets by default](#libreswan-no-longer-supports-ikev1-packets-by-default)
-- [Issue with blacklisting of L2TP kernel modules](#issue-with-blacklisting-of-l2tp-kernel-modules)
-- [L2TP connection issues with UDP source port 1701](#l2tp-connection-issues-with-udp-source-port-1701)
-  - [Unable to establish L2TP connection without UDP source port 1701](#unable-to-establish-l2tp-connection-without-udp-source-port-1701)
-  - [Unable to establish L2TP connection with UDP source port 1701](#unable-to-establish-l2tp-connection-with-udp-source-port-1701)
-- [IPsec IKEv1 weak legacy algorithms and backwards compatibility](#ipsec-ikev1-weak-legacy-algorithms-and-backwards-compatibility)
-
 ## Building
 
     ./autogen.sh
@@ -77,9 +47,9 @@ please visit the Wiki :
     make
 
 The default ./configure settings aren't reasonable and should be explicitly
-overridden with ./configure arguments. In the configure examples below, for
-your needs, you may need to change the `--with-pppd-plugin-dir` value to an
-appropriate directory that exists, similarly `--with-nm-ipsec-nss-dir` may
+overridden with ./configure arguments. In the configure examples below, if you
+have pppd < 2.5.0 you may need to use `--with-pppd-plugin-dir` and set it to
+an appropriate directory that exists, similarly `--with-nm-ipsec-nss-dir` may
 need to be set to the Libreswan NSS database location if it is not located in
 `/var/lib/ipsec/nss`. The `--enable-libreswan-dh2` switch can be used with
 libreswan < 3.30 or libreswan packages built with `USE_DH2=true` i.e. have
@@ -211,7 +181,7 @@ issue the following to see more log output:
 
 ### Libreswan Custom Debugging
 
-The Libreswan debugging can be cutomized by setting the `PLUTODEBUG` env
+The Libreswan debugging can be customized by setting the `PLUTODEBUG` env
 variable which corresponds to the `plutodebug` ipsec.conf config section option.
 The syntax for `PLUTODEBUG` is a white-space separated list of the following
 format :

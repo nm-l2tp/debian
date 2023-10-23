@@ -1,4 +1,4 @@
+usr/libexec/nm-l2tp-auth-dialog
 usr/lib/*/NetworkManager/libnm-vpn-plugin-l2tp-editor.so
 usr/lib/*/NetworkManager/libnm-gtk4-vpn-plugin-l2tp-editor.so
-usr/lib/NetworkManager/nm-l2tp-auth-dialog
 usr/share/metainfo/network-manager-l2tp.metainfo.xml

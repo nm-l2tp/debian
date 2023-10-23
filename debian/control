@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper-compat (= 13),
                gettext (>= 0.19),
+               pkg-config,
                libnm-dev (>= 1.20.0),
                libnma-dev,
                libnma-gtk4-dev (>= 1.8.33),
@@ -15,7 +16,7 @@ Build-Depends: debhelper-compat (= 13),
                libgtk-4-bin (>= 4.6.2),
                libnss3-dev,
                libssl-dev
-Standards-Version: 4.6.1
+Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Vcs-Git: https://github.com/nm-l2tp/debian.git
 Vcs-Browser: https://github.com/nm-l2tp/debian.git

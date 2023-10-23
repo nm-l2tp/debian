@@ -43,6 +43,15 @@
 /* Define to 1 if you have the <paths.h> header file. */
 #undef HAVE_PATHS_H
 
+/* Define to 1 if you have the <pppd/chap.h> header file. */
+#undef HAVE_PPPD_CHAP_H
+
+/* Define to 1 if you have the <pppd/chap_ms.h> header file. */
+#undef HAVE_PPPD_CHAP_MS_H
+
+/* Define to 1 if you have the <pppd/chap-new.h> header file. */
+#undef HAVE_PPPD_CHAP_NEW_H
+
 /* Define to 1 if you have the <pppd/pppd.h> header file. */
 #undef HAVE_PPPD_PPPD_H
 
@@ -51,6 +60,12 @@
 
 /* Define to 1 if you have the `socket' function. */
 #undef HAVE_SOCKET
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#undef HAVE_STDARG_H
+
+/* Define to 1 if you have the <stdbool.h> header file. */
+#undef HAVE_STDBOOL_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -129,6 +144,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Macro to help determine the particular version of pppd */
+#undef PPP_VERSION
 
 /* Define to 1 if all of the C90 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
@@ -232,6 +250,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* The real version of pppd represented as an int */
+#undef WITH_PPP_VERSION
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef mode_t
