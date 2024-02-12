@@ -1,3 +1,11 @@
+network-manager-l2tp (1.20.12-1) unstable; urgency=medium
+
+  * New upstream version 1.20.12.
+  * Change L2TP daemon dependency to go-l2tp or xl2tpd.
+  * Change Build-Depends from pkg-config to pkgconf.
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Tue, 13 Feb 2024 07:19:00 +1000
+
 network-manager-l2tp (1.20.10-1) unstable; urgency=medium
 
   * New upstream version 1.20.10.

@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper-compat (= 13),
                gettext (>= 0.19),
-               pkg-config,
+               pkgconf,
                libnm-dev (>= 1.20.0),
                libnma-dev,
                libnma-gtk4-dev (>= 1.8.33),
@@ -27,7 +27,7 @@ Architecture: linux-any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          network-manager,
-         xl2tpd,
+         go-l2tp | xl2tpd,
          strongswan | libreswan
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
