@@ -86,7 +86,6 @@ typedef struct {
 
     /* Local IP route to the L2TP gateway */
     char *  slocaladdr;
-
 } NML2tpPluginPrivate;
 
 #define NM_L2TP_PLUGIN_GET_PRIVATE(o) \
@@ -921,7 +920,11 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             write_config_option(fd, "  authby=secret\n");
         }
 
-        write_config_option(fd, "  left=%s\n", priv->slocaladdr);
+        if (priv->slocaladdr) {
+            write_config_option(fd, "  left=%s\n", priv->slocaladdr);
+        } else {
+            write_config_option(fd, "  left=%%defaultroute\n");
+        }
         if (!use_ephemeral_port) {
             write_config_option(fd, "  leftprotoport=udp/l2tp\n");
         }
@@ -1437,9 +1440,10 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
     gchar *              argv[5];
     GPid                 pid_ipsec_up;
     pid_t                wpid;
+    gboolean             require_ipsec_auto = FALSE;
 
     if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_LIBRESWAN) {
-        snprintf(cmdbuf, sizeof(cmdbuf), "%s auto --status > /dev/null", priv->ipsec_binary_path);
+        snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null", priv->ipsec_binary_path);
         sys = system(cmdbuf);
         if (sys == 1) {
             snprintf(cmdbuf, sizeof(cmdbuf), "%s start", priv->ipsec_binary_path);
@@ -1455,13 +1459,13 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             }
         }
         /* wait for Libreswan to get ready before performing an up operation */
-        snprintf(cmdbuf, sizeof(cmdbuf), "%s auto --ready", priv->ipsec_binary_path);
+        snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null", priv->ipsec_binary_path);
         sys = system(cmdbuf);
         for (retry = 0; retry < 5 && sys != 0; retry++) {
             sleep(1);
             sys = system(cmdbuf);
         }
-    } else {
+    } else { /* strongswan */
         snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null", priv->ipsec_binary_path);
         sys = system(cmdbuf);
         if (sys == 3) {
@@ -1494,60 +1498,61 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             sleep(1);
             sys = system(cmdbuf);
         }
+        sys = 0;
     }
 
     /* spawn ipsec script asynchronously as it sometimes doesn't exit */
     pid_ipsec_up = 0;
     if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_LIBRESWAN) {
-        snprintf(cmdbuf,
-                 sizeof(cmdbuf),
-                 "%s auto "
-                 " --config " RUNSTATEDIR "/nm-l2tp-%s/ipsec.conf --verbose"
-                 " --add '%s'",
-                 priv->ipsec_binary_path,
-                 priv->uuid,
-                 priv->uuid);
+        require_ipsec_auto = require_libreswan_ipsec_auto(priv->ipsec_binary_path);
+        if (require_ipsec_auto) {
+            snprintf(cmdbuf,
+                     sizeof(cmdbuf),
+                     "%s auto"
+                     " --config " RUNSTATEDIR "/nm-l2tp-%s/ipsec.conf --verbose"
+                     " --add '%s'",
+                     priv->ipsec_binary_path,
+                     priv->uuid,
+                     priv->uuid);
+        } else {
+            snprintf(cmdbuf,
+                     sizeof(cmdbuf),
+                     "%s"
+                     " add '%s'"
+                     " --config " RUNSTATEDIR "/nm-l2tp-%s/ipsec.conf --verbose",
+                     priv->ipsec_binary_path,
+                     priv->uuid,
+                     priv->uuid);
+        }
         sys = system(cmdbuf);
-        if (!sys) {
+    }
+    if (!sys) {
+       if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_LIBRESWAN && require_ipsec_auto) {
             argv[0] = priv->ipsec_binary_path;
             argv[1] = "auto";
             argv[2] = "--up";
             argv[3] = priv->uuid;
             argv[4] = NULL;
-
-            if (!g_spawn_async(NULL,
-                               argv,
-                               NULL,
-                               G_SPAWN_DO_NOT_REAP_CHILD,
-                               NULL,
-                               NULL,
-                               &pid_ipsec_up,
-                               NULL)) {
-                pid_ipsec_up = 0;
-            } else {
-                if (pid_ipsec_up)
-                    _LOGI("Spawned ipsec auto --up script with PID %d.", pid_ipsec_up);
-            }
+        } else { /* libreswan >= 5.0 and strongswan */
+            argv[0] = priv->ipsec_binary_path;
+            argv[1] = "up";
+            argv[2] = priv->uuid;
+            argv[3] = NULL;
         }
+    }
+
+    if (!g_spawn_async(NULL,
+                       argv,
+                       NULL,
+                       G_SPAWN_DO_NOT_REAP_CHILD,
+                       NULL,
+                       NULL,
+                       &pid_ipsec_up,
+                       NULL)) {
+        pid_ipsec_up = 0;
     } else {
-        argv[0] = priv->ipsec_binary_path;
-        argv[1] = "up";
-        argv[2] = priv->uuid;
-        argv[3] = NULL;
-
-        if (!g_spawn_async(NULL,
-                           argv,
-                           NULL,
-                           G_SPAWN_DO_NOT_REAP_CHILD,
-                           NULL,
-                           NULL,
-                           &pid_ipsec_up,
-                           NULL)) {
-            pid_ipsec_up = 0;
-        } else {
-            if (pid_ipsec_up)
-                _LOGI("Spawned ipsec up script with PID %d.", pid_ipsec_up);
-        }
+        if (pid_ipsec_up)
+            _LOGI("Spawned ipsec up script with PID %d.", pid_ipsec_up);
     }
 
     if (pid_ipsec_up > 0) {
@@ -1993,7 +1998,7 @@ real_connect(NMVpnServicePlugin *plugin, NMConnection *connection, GError **erro
         return FALSE;
 
     if (!get_localaddr(NM_L2TP_PLUGIN (plugin), error))
-        return FALSE;
+        priv->slocaladdr = NULL;
 
     if (!nm_l2tp_properties_validate(s_vpn, error))
         return FALSE;
