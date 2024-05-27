@@ -16,7 +16,7 @@ Build-Depends: debhelper-compat (= 13),
                libgtk-4-bin (>= 4.6.2),
                libnss3-dev,
                libssl-dev
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Rules-Requires-Root: no
 Vcs-Git: https://github.com/nm-l2tp/debian.git
 Vcs-Browser: https://github.com/nm-l2tp/debian.git

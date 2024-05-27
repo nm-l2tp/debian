@@ -8,9 +8,11 @@
   <extends>org.gnome.Settings.desktop</extends>
   <extends>gnome-control-center.desktop</extends>
   <name>L2TP VPN Client</name>
+  <name xml:lang="zh_CN">L2TP VPN客户端</name>
   <name xml:lang="ru">Клиент L2TP VPN</name>
   <name xml:lang="ka">L2TP VPN-ის კლიენტი</name>
   <summary>Client for L2TP based virtual private networks</summary>
+  <summary xml:lang="zh_CN">基于L2TP的虚拟专用网客户端</summary>
   <summary xml:lang="ru">Клиент для виртуальных частных сетей на основе протокола L2TP</summary>
   <summary xml:lang="ka">L2TP ვირტუალური პირადი ქსელების კლიენტი</summary>
   <keywords>
@@ -18,32 +20,75 @@
     <keyword>manager</keyword>
     <keyword>NetworkManager</keyword>
     <keyword>connection</keyword>
+    <keyword xml:lang="zh_TW">連線</keyword>
+    <keyword xml:lang="zh_CN">连接</keyword>
+    <keyword xml:lang="uk">з'єднання</keyword>
+    <keyword xml:lang="tr">bağlantı</keyword>
+    <keyword xml:lang="te">అనుసంధానము</keyword>
+    <keyword xml:lang="ta">இணைப்பு</keyword>
+    <keyword xml:lang="sv">anslutning</keyword>
+    <keyword xml:lang="sk">spojenie</keyword>
+    <keyword xml:lang="ru">подключение</keyword>
+    <keyword xml:lang="ro">conexiune</keyword>
+    <keyword xml:lang="pt_BR">conexão</keyword>
+    <keyword xml:lang="pl">połączenie</keyword>
+    <keyword xml:lang="pa">ਕਨੈਕਸ਼ਨ</keyword>
+    <keyword xml:lang="or">ସଂଯୋଗ</keyword>
+    <keyword xml:lang="oc">connexion</keyword>
+    <keyword xml:lang="nl">verbinding</keyword>
+    <keyword xml:lang="mr">जोडणी</keyword>
+    <keyword xml:lang="ko">연결</keyword>
+    <keyword xml:lang="kn">ಸಂಪರ್ಕ</keyword>
+    <keyword xml:lang="ka">შეერთება</keyword>
+    <keyword xml:lang="ja">接続</keyword>
+    <keyword xml:lang="it">connessione</keyword>
+    <keyword xml:lang="id">koneksi</keyword>
+    <keyword xml:lang="hu">kapcsolat</keyword>
+    <keyword xml:lang="hr">povezivanje</keyword>
+    <keyword xml:lang="gu">જોડાણ</keyword>
+    <keyword xml:lang="gl">conexión</keyword>
+    <keyword xml:lang="fr">connexion</keyword>
+    <keyword xml:lang="es">conexión</keyword>
+    <keyword xml:lang="eo">konekto</keyword>
+    <keyword xml:lang="el">σύνδεση</keyword>
+    <keyword xml:lang="de">verbindung</keyword>
+    <keyword xml:lang="da">forbindelse</keyword>
+    <keyword xml:lang="cs">připojení</keyword>
+    <keyword xml:lang="ca">connexió</keyword>
+    <keyword xml:lang="bn_IN">সংযোগ</keyword>
+    <keyword xml:lang="as">সংযোগ</keyword>
     <keyword>VPN</keyword>
+    <keyword xml:lang="sr">ВПН</keyword>
+    <keyword xml:lang="bg">ВЧМ</keyword>
     <keyword>L2TP</keyword>
   </keywords>
   <description>
     <p>Support for configuring L2TP based virtual private network connections.</p>
+    <p xml:lang="zh_CN">支持配置基于L2TP的虚拟私网连接。</p>
     <p xml:lang="ru">Помощь в настройке параметров соединений виртуальных частных сетей наоснове протокола L2TP.</p>
     <p xml:lang="ka">L2TP-ზე დაფუძნებულ ვირტუალურ კერძო ქსელებთან მიერთების მორგების მხარდაჭერა.</p>
     <p>Compatible with L2TP and L2TP over IPsec services.</p>
+    <p xml:lang="zh_CN">支持L2TP和L2TP over IPsec业务。</p>
     <p xml:lang="ru">Совместим со службами L2TP и L2TP через IPsec.</p>
     <p xml:lang="ka">თავსებადია L2TP და L2TP IPsec-ის ზემოდან სერვისებთან.</p>
   </description>
   <screenshots>
     <screenshot type="default">
-      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.12/appdata/l2tp.png</image>
+      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.16/appdata/l2tp.png</image>
     </screenshot>
     <screenshot type="default">
       <caption>The IPsec options dialog</caption>
+      <caption xml:lang="zh_CN">IPsec选项对话框</caption>
       <caption xml:lang="ru">Диалоговое окно настройки параметров IPsec</caption>
       <caption xml:lang="ka">IPsec-ის პარამეტრების ფანჯარა</caption>
-      <image width="800" height="595">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.12/appdata/l2tp-ipsec.png</image>
+      <image width="800" height="595">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.16/appdata/l2tp-ipsec.png</image>
     </screenshot>
     <screenshot type="default">
       <caption>The PPP options dialog</caption>
+      <caption xml:lang="zh_CN">PPP选项对话框</caption>
       <caption xml:lang="ru">Диалоговое окно настройки параметров PPP</caption>
       <caption xml:lang="ka">PPP-ის პარამეტრების ფანჯარა</caption>
-      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.12/appdata/l2tp-ppp.png</image>
+      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.20.16/appdata/l2tp-ppp.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/nm-l2tp/NetworkManager-l2tp</url>
@@ -51,6 +96,7 @@
   <update_contact>doug@uq.edu.au</update_contact>
   <translation type="gettext">NetworkManager-l2tp</translation>
   <developer_name>The NetworkManager-L2TP Developers</developer_name>
+  <developer_name xml:lang="zh_CN">he NetworkManager-L2TP Developers</developer_name>
   <developer_name xml:lang="ru">Разработчики NetworkManager-L2TP</developer_name>
   <developer_name xml:lang="ka">NetworkManager-L2TP-ის პროგრამისტები</developer_name>
 </component>
