@@ -29,13 +29,6 @@ The configure script will attempt to determine if pppd EAP-TLS support is
 available and will disable the build time TLS user certificate support if it
 can not be detected.
 
-This VPN plugin auto detects the following TLS certificate and private key file
-formats by looking at the file contents and not the file extension :
-* PKCS#12 certificates.
-* X509 certificates (PEM or DER).
-* PKCS#8 private keys (PEM or DER)
-* traditional OpenSSL RSA, DSA and ECDSA private keys (PEM or DER).
-
 For details on pre-built packages, known issues and build dependencies,
 please visit the Wiki :
 * https://github.com/nm-l2tp/NetworkManager-l2tp/wiki
@@ -100,6 +93,13 @@ modp1024 support.
       --enable-libreswan-dh2 \
       --with-gtk4
 
+## VPN connection profile files
+
+VPN connection profile files will be one of the following, with the latter
+used when Netplan integration is enabled in NetworkManager:
+- /etc/NetworkManager/system-connections/*.nmconnection
+- /etc/netplan/90-NM-*.yaml
+
 ## Run-time generated files
 
 The following files located under `/var/run` assume `--localstatedir=/var` or
@@ -143,13 +143,7 @@ password is stored:
 For Systemd based Linux distributions logging goes to the Systemd journal
 which can be viewed by issuing the following :
 
-    journalctl --no-hostname _SYSTEMD_UNIT=NetworkManager.service + SYSLOG_IDENTIFIER=pppd
-
-if using go-l2tp's kl2tpd, it is recommended to issue the following :
-
-    journalctl --no-hostname _SYSTEMD_UNIT=NetworkManager.service + _COMM=kl2tpd + SYSLOG_IDENTIFIER=pppd
-
-For some versions of Fedora, libreswan logging also goes to `/var/log/pluto.log`.
+    journalctl --no-hostname _COMM=nm-l2tp-service _COMM=ipsec _COMM=pluto _COMM=charon _COMM=kl2tpd _COMM=xl2tpd _COMM=pppd
 
 For non-Systemd based Linux distributions, view the appropriate system log
 file which is most likely located under `/var/log/`.
