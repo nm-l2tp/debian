@@ -64,18 +64,21 @@ License: LGPL-2.1+
 
 Files: appdata/network-manager-l2tp.metainfo.xml*
 Copyright: 2016 Copyright Lubomir Rintel <lkundrak@v3.sk>
-License: CC0 or GPL-2+
+License: CC0-1.0
 
 Files: config.rpath
+Copyright: 1996-2024 Free Software Foundation, Inc.
 License: FSFULLR
 
 Files: po/remove-potcdate.sin
+Copyright: 2002, Free Software Foundation, Inc
 License: FSFAP
 
 Files: debian/*
+Copyright: 2018-2024, Douglas Kosovic <doug@uq.edu.au>
 License: GPL-2+
 
-License: CC0
+License: CC0-1.0
   CC0 1.0 Universal
   .
       CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE
@@ -202,7 +205,9 @@ License: FSFAP
  this notice are preserved. This file is offered as-is, without any warranty.
 
 License: FSFULLR
-Comment: Add the corresponding license text here
+ This file is free software; the Free Software Foundation gives
+ unlimited permission to copy and/or distribute it, with or without
+ modifications, as long as this notice is preserved.
 
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
