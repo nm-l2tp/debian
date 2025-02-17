@@ -1,3 +1,14 @@
+network-manager-l2tp (1.20.20-2) unstable; urgency=medium
+
+  * Bump Standards-Version to 4.7.2
+  * Update d/copyright to correct licenses (Closes: #1091384)
+  * Change dependency from strongswan to strongswan-charon.
+    As of strongswan 6.0.0-1, the strongswan meta package now depends
+    on strongswan-swanctl instead of strongswan-starter which has the
+    required /usr/sbin/ipsec script. (Closes: #1098710) 
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Mon, 17 Feb 2025 22:03:00 +1000
+
 network-manager-l2tp (1.20.20-1) unstable; urgency=medium
 
   * New upstream version 1.20.20.

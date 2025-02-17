@@ -16,7 +16,7 @@ Build-Depends: debhelper-compat (= 13),
                libgtk-4-bin (>= 4.6.2),
                libnss3-dev,
                libssl-dev
-Standards-Version: 4.7.0
+Standards-Version: 4.7.2
 Rules-Requires-Root: no
 Vcs-Git: https://github.com/nm-l2tp/debian.git
 Vcs-Browser: https://github.com/nm-l2tp/debian.git
@@ -28,7 +28,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          network-manager,
          go-l2tp | xl2tpd,
-         strongswan | libreswan
+         strongswan-charon | libreswan
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when
