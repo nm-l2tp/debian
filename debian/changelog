@@ -1,3 +1,16 @@
+network-manager-l2tp (1.52.0-1) unstable; urgency=medium
+
+  * New upstream version 1.52.0 (Closes: #1125034)
+    Verify file permissions for private connections to prevent unprivileged
+    user from using other user's certs (CVE-2025-9615)
+  * Bump minimum required version of network-manager to 1.54.3
+    This ensures we have a fix for CVE-2025-9615.
+  * Bump Standards-Version to 4.7.3
+  * Drop Priority and Rules-Requires-Root fields
+  * Update debian/copyright
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Sun, 11 Jan 2026 08:46:00 +1000
+
 network-manager-l2tp (1.20.20-2) unstable; urgency=medium
 
   * Bump Standards-Version to 4.7.2

@@ -1,7 +1,8 @@
 # NetworkManager-l2tp
 
-NetworkManager-l2tp is a VPN plugin for NetworkManager 1.20 and later which
-provides support for L2TP and L2TP/IPsec (i.e. L2TP over IPsec) connections.
+NetworkManager-l2tp is a VPN plugin for NetworkManager 1.52.2, 1.54.3 or
+1.56.0 and later which provides support for L2TP and L2TP/IPsec (i.e. L2TP
+over IPsec) connections.
 
 For L2TP support, it uses either of the following :
 * kl2tpd from Katalix's go-l2tp project
@@ -235,6 +236,12 @@ failed to add IKEv1 connection: global ikev1-policy does not allow IKEv1 connect
 
 To re-enable IKEv1, uncomment or add `ikev1-policy=accept` to the
 `config setup` section of `/etc/ipsec.conf`
+
+With Libreswan >= 5.0, the re-enabling of IKEv1 can be achieved by issuing:
+
+```
+sudo sed -e 's/#ikev1-policy=.*/ikev1-policy=accept/' -i /etc/ipsec.conf
+```
 
 ## Issue with blacklisting of L2TP kernel modules
 

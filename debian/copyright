@@ -4,8 +4,8 @@ Upstream-Contact: Douglas Kosovic <doug@uq.edu.au>
 Source: https://github.com/nm-l2tp/NetworkManager-l2tp
 
 Files: *
-Copyright: 2018-2024, Douglas Kosovic <doug@uq.edu.au>
-           2008-2018, Red Hat, Inc
+Copyright: 2018-2025, Douglas Kosovic <doug@uq.edu.au>
+           2008-2025, Red Hat, Inc
 License: GPL-2+ or LGPL-2+
 
 Files: AUTHORS
@@ -29,13 +29,13 @@ Files: AUTHORS
 Copyright: 2011, Alexey Torkhov <atorkhov@gmail.com>
            2005-2010, Dan Williams <dcbw@redhat.com>
            2006-2008, Diego Pettenò <flameeyes@gmail.com>
-           2016-2024, Douglas Kosovic <doug@uq.edu.au>
+           2016-2025, Douglas Kosovic <doug@uq.edu.au>
            2023, Eivind Naess <eivnaes@yahoo.com>
            1989-2020, Free Software Foundation, Inc
            2011, Geo Carncross <geocar@gmail.com>
            2014, Nathan Dorfman <ndorf@rtfm.net>
            2007-2008, Novell, Inc
-           2004-2018, Red Hat, Inc
+           2004-2025, Red Hat, Inc
            2011-2013, Rosetta Contributors and Canonical Ltd
            2005, SUSE Linux Products GmbH
            2012, Sergey Prokhorov <me@seriyps.ru>
