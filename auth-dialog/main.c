@@ -21,6 +21,11 @@
 #include "nm-l2tp-crypto-openssl.h"
 #include "nm-utils/nm-secret-utils.h"
 
+#if !GTK_CHECK_VERSION(4,0,0)
+#define gtk_init()                      gtk_init(NULL, NULL)
+#define gtk_window_destroy(window)      gtk_widget_destroy(GTK_WIDGET(window))
+#endif
+
 #define KEYRING_UUID_TAG "connection-uuid"
 #define KEYRING_SN_TAG   "setting-name"
 #define KEYRING_SK_TAG   "setting-key"
@@ -190,14 +195,14 @@ eui_finish(const char *vpn_name,
                            existing_psk ? existing_psk : "",
                            _("Pre-shared key (PSK)"),
                            TRUE,
-                           need_psk && allow_interaction);
+                           need_psk && allow_interaction && existing_psk == NULL);
 
     keyfile_add_entry_info(keyfile,
                            NM_L2TP_KEY_MACHINE_CERTPASS,
                            existing_machine_certpass ? existing_machine_certpass : "",
                            _("Machine Certificate password"),
                            TRUE,
-                           need_machine_certpass && allow_interaction);
+                           need_machine_certpass && allow_interaction && existing_machine_certpass == NULL);
 
     keyfile_print_stdout(keyfile);
     g_key_file_unref(keyfile);
@@ -237,7 +242,7 @@ std_ask_user(const char *vpn_name,
     g_return_val_if_fail(out_new_psk != NULL, FALSE);
     g_return_val_if_fail(out_new_machine_certpass != NULL, FALSE);
 
-    gtk_init(NULL, NULL);
+    gtk_init();
 
     dialog =
         NMA_VPN_PASSWORD_DIALOG(nma_vpn_password_dialog_new(_("Authenticate VPN"), prompt, NULL));
@@ -280,7 +285,7 @@ std_ask_user(const char *vpn_name,
         success = TRUE;
     }
 
-    gtk_widget_destroy(GTK_WIDGET(dialog));
+    gtk_window_destroy(GTK_WINDOW(dialog));
     return success;
 }
 
@@ -479,6 +484,7 @@ main(int argc, char *argv[])
     nm_auto_free_secret char *     existing_user_certpass    = NULL;
     nm_auto_free_secret char *     existing_psk              = NULL;
     nm_auto_free_secret char *     existing_machine_certpass = NULL;
+    GError *                       error                     = NULL;
     gboolean                       external_ui_mode          = FALSE;
     gboolean                       ask_user;
     NoSecretsRequiredFunc          no_secrets_required_func;
@@ -501,14 +507,21 @@ main(int argc, char *argv[])
         {"external-ui-mode", 0, 0, G_OPTION_ARG_NONE, &external_ui_mode, "External UI mode", NULL},
         {NULL}};
 
+    setlocale (LC_ALL, "");
     bindtextdomain(GETTEXT_PACKAGE, NULL);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
 
     context = g_option_context_new("- l2tp auth dialog");
     g_option_context_add_main_entries(context, entries, GETTEXT_PACKAGE);
+#if !GTK_CHECK_VERSION(4,0,0)
     g_option_context_add_group(context, gtk_get_option_group(FALSE));
-    g_option_context_parse(context, &argc, &argv, NULL);
+#endif
+    if (!g_option_context_parse(context, &argc, &argv, &error)) {
+        fprintf (stderr, "Error parsing options: %s\n", error->message);
+        g_error_free (error);
+        return 1;
+    }
     g_option_context_free(context);
 
     if (vpn_uuid == NULL || vpn_name == NULL || vpn_service == NULL) {

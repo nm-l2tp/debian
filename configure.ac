@@ -1,7 +1,7 @@
 AC_PREREQ([2.69])
 
 AC_INIT([NetworkManager-l2tp],
-        [1.20.20],
+        [1.52.0],
         [https://github.com/nm-l2tp/NetworkManager-l2tp/issues],
         [NetworkManager-l2tp])
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
@@ -230,9 +230,22 @@ if test x"$with_gtk4" != xno; then
 	PKG_CHECK_MODULES(LIBNMA_GTK4, libnma-gtk4 >= 1.8.33)
 fi
 
-PKG_CHECK_MODULES(LIBNM, libnm >= 1.20)
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_20"
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_20"
+# Ensure libnm version has CVE-2025-9615 fix 
+LIBNM_VERSION=$(pkg-config --modversion libnm)
+case "$LIBNM_VERSION" in
+  1.52.*)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.52.2)
+    ;;
+  1.54.*)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.54.3)
+    ;;
+  1.55.*)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.55.91)
+    ;;
+  *)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.56.0)
+    ;;
+esac
 
 NM_VPN_SERVICE_DIR=`$PKG_CONFIG --define-variable prefix='\${prefix}' --variable vpnservicedir libnm`
 AC_SUBST(NM_VPN_SERVICE_DIR)

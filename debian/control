@@ -1,12 +1,11 @@
 Source: network-manager-l2tp
 Section: net
-Priority: optional
 Maintainer: Douglas Kosovic <doug@uq.edu.au>
 Build-Depends: debhelper-compat (= 13),
                gettext (>= 0.19),
                pkgconf,
                libnm-dev (>= 1.20.0),
-               libnma-dev,
+               libnm-dev (>= 1.54.3),
                libnma-gtk4-dev (>= 1.8.33),
                ppp-dev,
                libsecret-1-dev,
@@ -16,8 +15,7 @@ Build-Depends: debhelper-compat (= 13),
                libgtk-4-bin (>= 4.6.2),
                libnss3-dev,
                libssl-dev
-Standards-Version: 4.7.2
-Rules-Requires-Root: no
+Standards-Version: 4.7.3
 Vcs-Git: https://github.com/nm-l2tp/debian.git
 Vcs-Browser: https://github.com/nm-l2tp/debian.git
 Homepage: https://github.com/nm-l2tp/NetworkManager-l2tp
@@ -26,9 +24,9 @@ Package: network-manager-l2tp
 Architecture: linux-any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         network-manager,
+         network-manager (>= 1.54.3),
          go-l2tp | xl2tpd,
-         strongswan-charon | libreswan
+         strongswan | libreswan
 Description: network management framework (L2TP plugin core)
  NetworkManager is a system network service that manages your network devices
  and connections, attempting to keep active network connectivity when
