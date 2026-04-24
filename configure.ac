@@ -1,7 +1,7 @@
 AC_PREREQ([2.69])
 
 AC_INIT([NetworkManager-l2tp],
-        [1.20.20],
+        [1.52.2],
         [https://github.com/nm-l2tp/NetworkManager-l2tp/issues],
         [NetworkManager-l2tp])
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-xz -Wno-portability])
@@ -15,7 +15,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_USE_SYSTEM_EXTENSIONS
 
 dnl
-dnl AC_SUBST runstatedir is for autoconf < 2.70 compatibilty
+dnl AC_SUBST runstatedir is for autoconf < 2.70 compatibility
 dnl
 if test "x$runstatedir" = x; then
 	AC_SUBST([runstatedir], ['${localstatedir}/run'])
@@ -51,14 +51,13 @@ fi
 dnl
 dnl Required headers
 dnl
-AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h paths.h stdarg.h stdbool.h sys/ioctl.h sys/time.h syslog.h unistd.h])
 
 AC_CHECK_HEADERS(pppd/pppd.h,,
   AC_MSG_ERROR(couldn't find pppd.h. pppd development headers are required.))
 
 dnl
-dnl Check the presense of other pppd/*.h files
+dnl Check the presence of other pppd/*.h files
 AC_CHECK_HEADERS([pppd/chap.h pppd/chap-new.h pppd/chap_ms.h])
 
 dnl
@@ -132,12 +131,10 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
-AC_HEADER_TIME
 
 dnl
 dnl Checks for library functions.
 dnl
-AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(select socket uname)
 
@@ -162,7 +159,7 @@ PKG_CHECK_MODULES(OPENSSL, [libcrypto >= 1.1.0], [have_crypto_openssl=yes], [hav
 if test "x${have_crypto_openssl}" = "xno"; then
 	AC_MSG_ERROR($OPENSSL_PKG_ERRORS)
 fi
-PKG_CHECK_MODULES(NSS, [nss], [have_crypto_ipsec_nss=yes], [have_crypto_ipsec_nss=yes])
+PKG_CHECK_MODULES(NSS, [nss], [have_crypto_ipsec_nss=yes], [have_crypto_ipsec_nss=no])
 if test "${have_crypto_ipsec_nss}" = "yes"; then
 	# Work around a pkg-config bug (fdo #29801) where exists != usable
 	FOO=`$PKG_CONFIG --cflags --libs nss`
@@ -230,9 +227,19 @@ if test x"$with_gtk4" != xno; then
 	PKG_CHECK_MODULES(LIBNMA_GTK4, libnma-gtk4 >= 1.8.33)
 fi
 
-PKG_CHECK_MODULES(LIBNM, libnm >= 1.20)
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MIN_REQUIRED=NM_VERSION_1_20"
-LIBNM_CFLAGS="$LIBNM_CFLAGS -DNM_VERSION_MAX_ALLOWED=NM_VERSION_1_20"
+# Ensure libnm version has CVE-2025-9615 fix 
+LIBNM_VERSION=$($PKG_CONFIG --modversion libnm)
+case "$LIBNM_VERSION" in
+  1.52.*)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.52.2)
+    ;;
+  1.54.*)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.54.3)
+    ;;
+  *)
+    PKG_CHECK_MODULES(LIBNM, libnm >= 1.56.0)
+    ;;
+esac
 
 NM_VPN_SERVICE_DIR=`$PKG_CONFIG --define-variable prefix='\${prefix}' --variable vpnservicedir libnm`
 AC_SUBST(NM_VPN_SERVICE_DIR)

@@ -1,12 +1,15 @@
 # NetworkManager-l2tp
 
-NetworkManager-l2tp is a VPN plugin for NetworkManager 1.20 and later which
-provides support for L2TP and L2TP/IPsec (i.e. L2TP over IPsec) connections.
+NetworkManager-l2tp is a VPN plugin for NetworkManager 1.52.2, 1.54.3 or
+1.56.0 and later which provides support for L2TP and L2TP/IPsec (i.e. L2TP
+over IPsec) connections.
 
 For L2TP support, it uses either of the following :
 * kl2tpd from Katalix's go-l2tp project
   ( https://github.com/katalix/go-l2tp )
 * xl2tpd ( https://github.com/xelerance/xl2tpd )
+
+IPv6 functionality requires kl2tpd or an IPv6‑capable fork of xl2tpd.
 
 For IPsec support, it uses either of the following :
 * Libreswan ( https://libreswan.org )
@@ -19,15 +22,6 @@ For user authentication it supports either:
 For machine authentication it supports either:
 * Pre-shared key (PSK).
 * TLS certificates.
-
-For TLS user certificate support, ppp >= 2.4.9 is required or the EAP-TLS
-patch for pppd needs to be applied to the ppp source code for older versions :
-
-* https://www.nikhef.nl/~janjust/ppp/
-
-The configure script will attempt to determine if pppd EAP-TLS support is
-available and will disable the build time TLS user certificate support if it
-can not be detected.
 
 For details on pre-built packages, known issues and build dependencies,
 please visit the Wiki :
@@ -201,7 +195,7 @@ the command-line :
 
 ### strongSwan Custom Debugging
 
-The strongSwan debugging can be cutomized by setting the `CHARONDEBUG` env
+The strongSwan debugging can be customized by setting the `CHARONDEBUG` env
 variable which corresponds to the `charondebug` ipsec.conf config section option.
 The syntax for `CHARONDEBUG` is a comma separated list of the following format :
 
@@ -235,6 +229,12 @@ failed to add IKEv1 connection: global ikev1-policy does not allow IKEv1 connect
 
 To re-enable IKEv1, uncomment or add `ikev1-policy=accept` to the
 `config setup` section of `/etc/ipsec.conf`
+
+With Libreswan >= 5.0, the re-enabling of IKEv1 can be achieved by issuing:
+
+```
+sudo sed -e 's/#ikev1-policy=.*/ikev1-policy=accept/' -i /etc/ipsec.conf
+```
 
 ## Issue with blacklisting of L2TP kernel modules
 

@@ -1,4 +1,59 @@
 ==========================================================
+NetworkManager-l2tp-1.52.2
+Overview of changes since NetworkManager-l2tp-1.52.0
+==========================================================
+
+Changes:
+* Add experimental IPv6 support. Requires kl2tpd or an IPv6-capable
+  fork of xl2tpd.
+* Add optional Group Name / IPsec ID field for pre-shared key
+  authentication.
+* Add xl2tpd-max-retries connection setting, while preserving the
+  existing NM_L2TP_XL2TPD_MAX_RETRIES environment variable fallback.
+* Add ipcp-peer-ip connection setting so the IPCP peer address can be
+  set without forcing ipv4.gateway, allowing it to be used with
+  ipv4.never-default.
+* Fix import/export and editor save handling to preserve hidden VPN
+  properties such as xl2tpd-max-retries and ipcp-peer-ip.
+* Fix several service and editor correctness issues, including
+  portable daemon restart detection, auth-dialog timeout handling,
+  memory leaks, a heap use-after-free and pointer ownership bugs.
+* Updated translations.
+
+==========================================================
+NetworkManager-l2tp-1.52.0
+Overview of changes since NetworkManager-l2tp-1.20.22
+==========================================================
+
+Changes:
+* Verify file permissions for private connections to
+  prevent unprivileged user from using other user's
+  certs (CVE-2025-9615). Requires NetworkManager 1.52.2,
+  1.54.3 or 1.56.0 and later.
+* Fixes g_dbus_method_invocation_take_error: assertion
+ 'error != NULL' failed warning.
+* Merge translations from NetworkManager-fortisslvpn,
+  NetworkManager-libreswan and NetworkManager-openvpn.
+
+==========================================================
+NetworkManager-l2tp-1.20.22
+Overview of changes since NetworkManager-l2tp-1.20.20
+==========================================================
+
+Changes:
+* Add group read permission to /etc/ipsec.d/ipsec.nm-l2tp.secrets.
+  Required when Gentoo strongswan package is built with the "non-root" local
+  USE flag, otherwise charon daemon does not have the privileges to read
+  the ipsec.nm-l2tp.secrets file.
+* Stored PSK is no longer visible in auth-dialog.
+* Stored machine certificate passphrase is no longer visible in auth-dialog.
+* Check the presence of the L2TP editor plugin and provide feedback via the
+  capabilities.
+* Wide character password fix.
+* Port auth-dialog Gtk4
+* Update and improve zh_TW Traditional Chinese locale.
+
+==========================================================
 NetworkManager-l2tp-1.20.20
 Overview of changes since NetworkManager-l2tp-1.20.18
 ==========================================================
@@ -88,7 +143,7 @@ Changes:
 * Fix padding of PPP Options dialog.
 * Undo PTP peer & ext GW routing prevention workaround first introduced
   with NetworkManager-l2tp 1.8.4 as workaround no longer works with
-  NetworkManager 1.36. The actial fix should be done in NetworkManager.
+  NetworkManager 1.36. The actual fix should be done in NetworkManager.
 * Add support for Manual IPv4 configuration options:
   Address, Netmask and Gateway.
 * Remove deprecated OpenSSL 3 related code
@@ -116,7 +171,7 @@ Overview of changes since NetworkManager-l2tp-1.20.2
 
 Changes:
 * Security fix for properly detecting that strongswan CHILD_SA connection
-  has been estabilished.
+  has been established.
 * Fix for libreswan cannot route template policy error.
 
 ==========================================================
@@ -245,9 +300,9 @@ Overview of changes since network-manager-l2tp-1.2.12
     {enc=3DES_CBC integ=HMAC_SHA1_96}
 * Added use IKEv2 key exchange option.
 * Improved debugging output for Libreswan and strongSwan.
-  Libreswan debugging can now be cutomized by setting the `PLUTODEBUG`
+  Libreswan debugging can now be customized by setting the `PLUTODEBUG`
   environment variable.
-  strongSwan debugging can now  be cutomized by setting the `CHARONDEBUG`
+  strongSwan debugging can now  be customized by setting the `CHARONDEBUG`
   environment variable.
 * Gray out "IPsec Settings..." button if no *swan found.
   Also fix crash if "IPsec Settings..." button pressed and no *swan installed.
@@ -335,7 +390,7 @@ This is a new stable release of NetworkManager-l2tp.  Notable changes include:
 * configure --runstatedir support if using Autoconf >= 2.7.0.
 * If "Automatic (VPN) Addresses Only" mode is enabled in the the IPv4
   config settings, do not use the pppd usepeerdns option.
-  i.e. do not overide /etc/resolv.conf.
+  i.e. do not override /etc/resolv.conf.
 
 =======================================================
 NetworkManager-l2tp-1.2.6

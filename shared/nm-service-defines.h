@@ -48,6 +48,7 @@
 #define NM_L2TP_KEY_MRU               "mru"
 #define NM_L2TP_KEY_LCP_ECHO_FAILURE  "lcp-echo-failure"
 #define NM_L2TP_KEY_LCP_ECHO_INTERVAL "lcp-echo-interval"
+#define NM_L2TP_KEY_XL2TPD_MAX_RETRIES "xl2tpd-max-retries"
 #define NM_L2TP_KEY_UNIT_NUM          "unit"
 #define NM_L2TP_KEY_MACHINE_AUTH_TYPE "machine-auth-type"
 #define NM_L2TP_KEY_MACHINE_CA        "machine-ca"
@@ -57,6 +58,7 @@
 #define NM_L2TP_KEY_IPSEC_ENABLE      "ipsec-enabled"
 #define NM_L2TP_KEY_IPSEC_REMOTE_ID   "ipsec-remote-id"
 #define NM_L2TP_KEY_IPSEC_GATEWAY_ID  "ipsec-gateway-id" /* deprecated, use ipsec-remote-id */
+#define NM_L2TP_KEY_IPSEC_GROUP_NAME  "ipsec-group-name"
 #define NM_L2TP_KEY_IPSEC_PSK         "ipsec-psk"
 #define NM_L2TP_KEY_IPSEC_IKE         "ipsec-ike"
 #define NM_L2TP_KEY_IPSEC_ESP         "ipsec-esp"
@@ -66,6 +68,7 @@
 #define NM_L2TP_KEY_IPSEC_IPCOMP      "ipsec-ipcomp"
 #define NM_L2TP_KEY_IPSEC_IKEV2       "ipsec-ikev2"
 #define NM_L2TP_KEY_IPSEC_PFS         "ipsec-pfs"
+#define NM_L2TP_KEY_IPCP_PEER_IP      "ipcp-peer-ip"
 
 /* Internal auth-dialog -> service token indicating that no secrets are required
  * for the connection if X.509 private keys are used with no password protection.
