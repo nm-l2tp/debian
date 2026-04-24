@@ -164,6 +164,7 @@ tls_cert_changed_cb(GtkWidget *chooser, gpointer user_data)
     g_free(ca_cert_fname);
     g_free(cert_fname);
     g_free(key_fname);
+    g_clear_error(&config_error);
 }
 
 static void
@@ -283,6 +284,8 @@ check_validity(L2tpPluginUiWidget *self, GError **error)
         return FALSE;
     }
 
+    g_free(s);
+
     return TRUE;
 }
 
@@ -386,7 +389,7 @@ ppp_button_clicked_cb(GtkWidget *button, gpointer user_data)
     GtkBuilder *               builder;
     GtkTreeModel *             model;
     GtkTreeIter                iter;
-    const char *               authtype = NULL;
+    char *                     authtype = NULL;
     gboolean                   success;
     guint32                    i = 0;
     const char *widgets[] = {"ppp_auth_label", "auth_methods_label", "ppp_auth_methods", NULL};
@@ -403,6 +406,7 @@ ppp_button_clicked_cb(GtkWidget *button, gpointer user_data)
     dialog = ppp_dialog_new(priv->ppp, authtype);
     if (!dialog) {
         g_warning(_("%s: failed to create the PPP dialog!"), __func__);
+        g_free(authtype);
         return;
     }
 
@@ -427,6 +431,8 @@ ppp_button_clicked_cb(GtkWidget *button, gpointer user_data)
             }
         }
     }
+
+    g_free(authtype);
 
     gtk_widget_show(dialog);
 }
@@ -688,12 +694,32 @@ get_auth_type(GtkBuilder *builder)
     return auth_type;
 }
 
+static void
+copy_data_item_if_missing(NMSettingVpn *dest, NMSettingVpn *src, const char *key)
+{
+    const char *value;
+
+    g_return_if_fail(dest != NULL);
+    g_return_if_fail(key != NULL);
+
+    if (!src)
+        return;
+
+    if (nm_setting_vpn_get_data_item(dest, key))
+        return;
+
+    value = nm_setting_vpn_get_data_item(src, key);
+    if (value && value[0])
+        nm_setting_vpn_add_data_item(dest, key, value);
+}
+
 static gboolean
 update_connection(NMVpnEditor *iface, NMConnection *connection, GError **error)
 {
     L2tpPluginUiWidget *       self = L2TP_PLUGIN_UI_WIDGET(iface);
     L2tpPluginUiWidgetPrivate *priv = L2TP_PLUGIN_UI_WIDGET_GET_PRIVATE(self);
     NMSettingVpn *             s_vpn;
+    NMSettingVpn *             old_s_vpn;
     GtkWidget *                widget;
     char *                     auth_type;
     const char *               str;
@@ -701,6 +727,8 @@ update_connection(NMVpnEditor *iface, NMConnection *connection, GError **error)
 
     if (!check_validity(self, error))
         return FALSE;
+
+    old_s_vpn = nm_connection_get_setting_vpn(connection);
 
     s_vpn = NM_SETTING_VPN(nm_setting_vpn_new());
     g_object_set(s_vpn, NM_SETTING_VPN_SERVICE_TYPE, NM_DBUS_SERVICE_L2TP, NULL);
@@ -739,12 +767,12 @@ update_connection(NMVpnEditor *iface, NMConnection *connection, GError **error)
 
         if (nm_setting_vpn_get_secret(s_vpn, NM_L2TP_KEY_IPSEC_PSK)) {
             nm_setting_set_secret_flags(NM_SETTING(s_vpn),
-                                        NM_L2TP_KEY_PASSWORD,
+                                        NM_L2TP_KEY_IPSEC_PSK,
                                         NM_SETTING_SECRET_FLAG_AGENT_OWNED,
                                         NULL);
         }
 
-        if (nm_setting_vpn_get_secret(s_vpn, NM_L2TP_KEY_USER_CERTPASS)) {
+        if (nm_setting_vpn_get_secret(s_vpn, NM_L2TP_KEY_MACHINE_CERTPASS)) {
             nm_setting_set_secret_flags(NM_SETTING(s_vpn),
                                         NM_L2TP_KEY_MACHINE_CERTPASS,
                                         NM_SETTING_SECRET_FLAG_AGENT_OWNED,
@@ -761,6 +789,9 @@ update_connection(NMVpnEditor *iface, NMConnection *connection, GError **error)
     widget = GTK_WIDGET(gtk_builder_get_object(priv->builder, "ephemeral_checkbutton"));
     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(widget)))
         nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_EPHEMERAL_PORT, "yes");
+
+    copy_data_item_if_missing(s_vpn, old_s_vpn, NM_L2TP_KEY_XL2TPD_MAX_RETRIES);
+    copy_data_item_if_missing(s_vpn, old_s_vpn, NM_L2TP_KEY_IPCP_PEER_IP);
 
     nm_connection_add_setting(connection, NM_SETTING(s_vpn));
     valid = TRUE;

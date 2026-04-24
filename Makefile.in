@@ -2217,12 +2217,12 @@ gtk4/%.ui: properties/%.ui
 	gtk4-builder-tool simplify --3to4 $< |grep -v can-default >$@
 
 @WITH_GNOME_TRUE@$(appdata_DATA): $(appdata_in_files)
-@WITH_GNOME_TRUE@	$(AM_V_GEN)$(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
+@WITH_GNOME_TRUE@	$(AM_V_GEN) $(MSGFMT) --xml --template $< -d $(top_srcdir)/po -o $@
 
 nm-l2tp-service.name: $(srcdir)/nm-l2tp-service.name.in
 	$(AM_V_GEN) sed -e 's|[@]LIBEXECDIR[@]|$(libexecdir)|g' \
 	    -e 's|[@]PLUGINDIR[@]/|@NM_PLUGIN_DIR_NAME_FILE@|g' \
-	    $^ >$@
+	    $< >$@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

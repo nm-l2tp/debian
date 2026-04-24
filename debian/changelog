@@ -1,7 +1,18 @@
+network-manager-l2tp (1.52.2-1) unstable; urgency=medium
+
+  * New upstream version 1.52.1 (Closes: #1053583)
+    Has experimental IPv6 support.
+  * Fix Vcs-Browser URL which incorrectly had same .git URL as Vcs-Git.
+  * Fix typos reported by codespell.
+  * Bump Standards-Version to 4.7.4
+  * Update debian/copyright
+
+ -- Douglas Kosovic <doug@uq.edu.au>  Fri, 24 Apr 2026 20:43:00 +1000
+
 network-manager-l2tp (1.52.0-2) unstable; urgency=medium
 
   * Fix libnma-dev build dependency
-  * Fix strongswan-charon dependecy
+  * Fix strongswan-charon dependency
 
  -- Douglas Kosovic <doug@uq.edu.au>  Sun, 11 Jan 2026 11:02:00 +1000
 
@@ -81,7 +92,7 @@ network-manager-l2tp (1.20.2-1) unstable; urgency=medium
   * Bump libglib2.0-dev Build-Depends to (>= 2.34)
   * Bump libgtk-3-dev Build-Depends to (>= 3.16)
   * Enable all hardening build flags
-  * Drop unnecessary network-manager version contraint
+  * Drop unnecessary network-manager version constraint
   * Change debian-branch from master to main in gbp.conf
 
  -- Douglas Kosovic <doug@uq.edu.au>  Wed, 20 Apr 2022 08:40:00 +1000

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright Lubomir Rintel 2016 -->
 <component type="addon">
-  <id>network-manager-l2tp</id>
+  <id>org.freedesktop.NetworkManager.l2tp</id>
   <project_license>GPL-2.0-or-later</project_license>
   <metadata_license>CC0-1.0</metadata_license>
   <extends>nm-connection-editor.desktop</extends>
@@ -12,18 +12,38 @@
   <name xml:lang="zh-Hans-CN">L2TP VPN客户端</name>
   <name xml:lang="ru">Клиент L2TP VPN</name>
   <name xml:lang="ka">L2TP VPN-ის კლიენტი</name>
+  <name xml:lang="ja">L2TP VPN クライアント</name>
+  <name xml:lang="it">Client VPN L2TP</name>
+  <name xml:lang="fr">Client VPN L2TP</name>
+  <name xml:lang="ar">عميل VPN من نوع L2TP</name>
   <summary>Client for L2TP based virtual private networks</summary>
   <summary xml:lang="zh-Hant-TW">適用於 L2TP 架構虛擬私有網路的用戶端</summary>
   <summary xml:lang="zh-Hans-CN">基于L2TP的虚拟专用网客户端</summary>
   <summary xml:lang="ru">Клиент для виртуальных частных сетей на основе протокола L2TP</summary>
   <summary xml:lang="ka">L2TP ვირტუალური პირადი ქსელების კლიენტი</summary>
+  <summary xml:lang="ja">L2TP ベースの仮想プライベートネットワーク用クライアント</summary>
+  <summary xml:lang="it">Client per reti private virtuali basate su L2TP</summary>
+  <summary xml:lang="fr">Client pour les réseaux privés virtuels basés sur L2TP</summary>
+  <summary xml:lang="ar">عميل للشبكات الخاصة الافتراضية المبنية على L2TP</summary>
   <keywords>
     <keyword>network</keyword>
     <keyword xml:lang="zh-Hant-TW">網路</keyword>
+    <keyword xml:lang="ja">ネットワーク</keyword>
+    <keyword xml:lang="it">rete</keyword>
+    <keyword xml:lang="fr">réseau</keyword>
+    <keyword xml:lang="ar">شبكة</keyword>
     <keyword>manager</keyword>
     <keyword xml:lang="zh-Hant-TW">管理員</keyword>
+    <keyword xml:lang="ja">マネージャー</keyword>
+    <keyword xml:lang="it">gestore</keyword>
+    <keyword xml:lang="fr">gestionnaire</keyword>
+    <keyword xml:lang="ar">مدير</keyword>
     <keyword>NetworkManager</keyword>
     <keyword xml:lang="zh-Hant-TW">網路管理員</keyword>
+    <keyword xml:lang="ja">NetworkManager</keyword>
+    <keyword xml:lang="it">NetworkManager</keyword>
+    <keyword xml:lang="fr">NetworkManager</keyword>
+    <keyword xml:lang="ar">NetworkManager</keyword>
     <keyword>connection</keyword>
     <keyword xml:lang="zh-Hant-TW">連線</keyword>
     <keyword xml:lang="zh-Hans-CN">连接</keyword>
@@ -62,28 +82,45 @@
     <keyword xml:lang="ca">connexió</keyword>
     <keyword xml:lang="bn-IN">সংযোগ</keyword>
     <keyword xml:lang="as">সংযোগ</keyword>
+    <keyword xml:lang="ar">اتصال</keyword>
     <keyword>VPN</keyword>
     <keyword xml:lang="zh-Hant-TW">VPN</keyword>
     <keyword xml:lang="sr-Cyrl">ВПН</keyword>
+    <keyword xml:lang="ja">VPN</keyword>
+    <keyword xml:lang="it">VPN</keyword>
+    <keyword xml:lang="fr">VPN</keyword>
     <keyword xml:lang="bg">ВЧМ</keyword>
+    <keyword xml:lang="ar">VPN</keyword>
     <keyword>L2TP</keyword>
     <keyword xml:lang="zh-Hant-TW">L2TP</keyword>
+    <keyword xml:lang="ja">L2TP</keyword>
+    <keyword xml:lang="it">L2TP</keyword>
+    <keyword xml:lang="fr">L2TP</keyword>
+    <keyword xml:lang="ar">L2TP</keyword>
   </keywords>
   <description>
-    <p>Support for configuring L2TP based virtual private network connections.</p>
-    <p xml:lang="zh-Hant-TW">支援設定基於 L2TP 的虛擬私有網路連線。</p>
-    <p xml:lang="zh-Hans-CN">支持配置基于L2TP的虚拟私网连接。</p>
-    <p xml:lang="ru">Помощь в настройке параметров соединений виртуальных частных сетей наоснове протокола L2TP.</p>
-    <p xml:lang="ka">L2TP-ზე დაფუძნებულ ვირტუალურ კერძო ქსელებთან მიერთების მორგების მხარდაჭერა.</p>
+    <p>Support for configuring and managing L2TP based virtual private network connections in NetworkManager.</p>
+    <p xml:lang="zh-Hant-TW">支援在 NetworkManager 中設定及管理基於 L2TP 的虛擬私有網路連線。</p>
+    <p xml:lang="zh-Hans-CN">支持在 NetworkManager 中配置和管理基于L2TP的虚拟专用网络连接。</p>
+    <p xml:lang="ru">Поддержка настройки и управления соединениями виртуальных частных сетей на основе протокола L2TP в NetworkManager.</p>
+    <p xml:lang="ka">NetworkManager-ში L2TP-ზე დაფუძნებულ ვირტუალურ კერძო ქსელებთან მიერთების მორგებისა და მართვის მხარდაჭერა.</p>
+    <p xml:lang="ja">NetworkManager で L2TP ベースの仮想プライベートネットワーク接続を設定および管理できます。</p>
+    <p xml:lang="it">Supporto per la configurazione e la gestione di connessioni di rete privata virtuale basate su L2TP in NetworkManager.</p>
+    <p xml:lang="fr">Prise en charge de la configuration et de la gestion des connexions de réseau privé virtuel basées sur L2TP dans NetworkManager.</p>
+    <p xml:lang="ar">يدعم ضبط وإدارة اتصالات الشبكات الخاصة الافتراضية المستندة إلى L2TP في NetworkManager.</p>
     <p>Compatible with L2TP and L2TP over IPsec services.</p>
     <p xml:lang="zh-Hant-TW">與 L2TP 和基於 IPsec 的 L2TP 服務相容。</p>
     <p xml:lang="zh-Hans-CN">支持L2TP和L2TP over IPsec业务。</p>
     <p xml:lang="ru">Совместим со службами L2TP и L2TP через IPsec.</p>
     <p xml:lang="ka">თავსებადია L2TP და L2TP IPsec-ის ზემოდან სერვისებთან.</p>
+    <p xml:lang="ja">L2TP および IPsec 上の L2TP サービスと互換性があります。</p>
+    <p xml:lang="it">Compatibile con servizi L2TP e L2TP su IPsec.</p>
+    <p xml:lang="fr">Compatible avec les services L2TP et L2TP sur IPsec.</p>
+    <p xml:lang="ar">متوافق مع خدمات L2TP وL2TP عبر IPsec.</p>
   </description>
   <screenshots>
     <screenshot type="default">
-      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.0/appdata/l2tp.png</image>
+      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp.png</image>
     </screenshot>
     <screenshot>
       <caption>The IPsec options dialog</caption>
@@ -91,7 +128,11 @@
       <caption xml:lang="zh-Hans-CN">IPsec选项对话框</caption>
       <caption xml:lang="ru">Диалоговое окно настройки параметров IPsec</caption>
       <caption xml:lang="ka">IPsec-ის პარამეტრების ფანჯარა</caption>
-      <image width="800" height="595">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.0/appdata/l2tp-ipsec.png</image>
+      <caption xml:lang="ja">IPsec オプションダイアログ</caption>
+      <caption xml:lang="it">La finestra delle opzioni IPsec</caption>
+      <caption xml:lang="fr">La boîte de dialogue des options IPsec</caption>
+      <caption xml:lang="ar">حوار خيارات IPsec</caption>
+      <image width="800" height="676">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp-ipsec.png</image>
     </screenshot>
     <screenshot>
       <caption>The PPP options dialog</caption>
@@ -99,18 +140,25 @@
       <caption xml:lang="zh-Hans-CN">PPP选项对话框</caption>
       <caption xml:lang="ru">Диалоговое окно настройки параметров PPP</caption>
       <caption xml:lang="ka">PPP-ის პარამეტრების ფანჯარა</caption>
-      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.0/appdata/l2tp-ppp.png</image>
+      <caption xml:lang="ja">PPP オプションダイアログ</caption>
+      <caption xml:lang="it">La finestra delle opzioni PPP</caption>
+      <caption xml:lang="fr">La boîte de dialogue des options PPP</caption>
+      <caption xml:lang="ar">حوار خيارات PPP</caption>
+      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp-ppp.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/nm-l2tp/NetworkManager-l2tp</url>
   <url type="bugtracker">https://github.com/nm-l2tp/NetworkManager-l2tp/issues</url>
   <update_contact>doug@uq.edu.au</update_contact>
   <translation type="gettext">NetworkManager-l2tp</translation>
-  <developer>
+  <developer id="org.freedesktop.networkmanager_l2tp">
     <name>The NetworkManager-L2TP Developers</name>
     <name xml:lang="zh-Hant-TW">NetworkManager-L2TP 開發人員</name>
-    <name xml:lang="zh-Hans-CN">he NetworkManager-L2TP Developers</name>
     <name xml:lang="ru">Разработчики NetworkManager-L2TP</name>
     <name xml:lang="ka">NetworkManager-L2TP-ის პროგრამისტები</name>
+    <name xml:lang="ja">NetworkManager-L2TP 開発者</name>
+    <name xml:lang="it">Gli sviluppatori di NetworkManager-L2TP</name>
+    <name xml:lang="fr">Les développeurs de NetworkManager-L2TP</name>
+    <name xml:lang="ar">مطورو NetworkManager-L2TP</name>
   </developer>
 </component>

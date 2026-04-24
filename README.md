@@ -9,6 +9,8 @@ For L2TP support, it uses either of the following :
   ( https://github.com/katalix/go-l2tp )
 * xl2tpd ( https://github.com/xelerance/xl2tpd )
 
+IPv6 functionality requires kl2tpd or an IPv6‑capable fork of xl2tpd.
+
 For IPsec support, it uses either of the following :
 * Libreswan ( https://libreswan.org )
 * strongSwan ( https://www.strongswan.org )
@@ -20,15 +22,6 @@ For user authentication it supports either:
 For machine authentication it supports either:
 * Pre-shared key (PSK).
 * TLS certificates.
-
-For TLS user certificate support, ppp >= 2.4.9 is required or the EAP-TLS
-patch for pppd needs to be applied to the ppp source code for older versions :
-
-* https://www.nikhef.nl/~janjust/ppp/
-
-The configure script will attempt to determine if pppd EAP-TLS support is
-available and will disable the build time TLS user certificate support if it
-can not be detected.
 
 For details on pre-built packages, known issues and build dependencies,
 please visit the Wiki :
@@ -202,7 +195,7 @@ the command-line :
 
 ### strongSwan Custom Debugging
 
-The strongSwan debugging can be cutomized by setting the `CHARONDEBUG` env
+The strongSwan debugging can be customized by setting the `CHARONDEBUG` env
 variable which corresponds to the `charondebug` ipsec.conf config section option.
 The syntax for `CHARONDEBUG` is a comma separated list of the following format :
 

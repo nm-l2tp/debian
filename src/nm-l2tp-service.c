@@ -10,7 +10,7 @@
  * (C) Copyright 2011 Geo Carncross <geocar@gmail.com>
  * (C) Copyright 2012 Sergey Prokhorov <me@seriyps.ru>
  * (C) Copyright 2014 Nathan Dorfman <ndorf@rtfm.net>
- * (C) Copyright 2016 - 2025 Douglas Kosovic <doug@uq.edu.au>
+ * (C) Copyright 2016 - 2026 Douglas Kosovic <doug@uq.edu.au>
  */
 
 #include "nm-default.h"
@@ -85,6 +85,9 @@ typedef struct {
 
     /* IP of L2TP gateway in numeric and string format */
     guint32 naddr;
+    gint    naddr_family;
+    struct sockaddr_storage naddr_sockaddr;
+    socklen_t               naddr_sockaddr_len;
     char *  saddr;
 
     /* Local IP route to the L2TP gateway */
@@ -190,6 +193,7 @@ static const ValidProperty valid_properties[] = {
     {NM_L2TP_KEY_NO_ACCOMP, G_TYPE_BOOLEAN, FALSE},
     {NM_L2TP_KEY_LCP_ECHO_FAILURE, G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_LCP_ECHO_INTERVAL, G_TYPE_UINT, FALSE},
+    {NM_L2TP_KEY_XL2TPD_MAX_RETRIES, G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_UNIT_NUM, G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_MACHINE_AUTH_TYPE, G_TYPE_STRING, FALSE},
     {NM_L2TP_KEY_MACHINE_CA, G_TYPE_STRING, FALSE},
@@ -198,6 +202,7 @@ static const ValidProperty valid_properties[] = {
     {NM_L2TP_KEY_IPSEC_ENABLE, G_TYPE_BOOLEAN, FALSE},
     {NM_L2TP_KEY_IPSEC_REMOTE_ID, G_TYPE_STRING, FALSE},
     {NM_L2TP_KEY_IPSEC_GATEWAY_ID, G_TYPE_STRING, FALSE},
+    {NM_L2TP_KEY_IPSEC_GROUP_NAME, G_TYPE_STRING, FALSE},
     /* For legacy purposes, the PSK can also be specified as a non-secret */
     {NM_L2TP_KEY_IPSEC_PSK, G_TYPE_STRING, FALSE},
     {NM_L2TP_KEY_IPSEC_IKE, G_TYPE_STRING, FALSE},
@@ -212,6 +217,7 @@ static const ValidProperty valid_properties[] = {
     {NM_L2TP_KEY_USER_CERTPASS "-flags", G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_IPSEC_PSK "-flags", G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_MACHINE_CERTPASS "-flags", G_TYPE_UINT, FALSE},
+    {NM_L2TP_KEY_IPCP_PEER_IP, G_TYPE_STRING, FALSE},
     {KDE_PLASMA_L2TP_KEY_USE_CERT, G_TYPE_UINT, FALSE},
     {KDE_PLASMA_L2TP_KEY_CERT_CA, G_TYPE_STRING, FALSE},
     {KDE_PLASMA_L2TP_KEY_CERT_PUB, G_TYPE_STRING, FALSE},
@@ -283,21 +289,92 @@ has_include_ipsec_secrets(const char *ipsec_secrets_file)
 }
 
 static gboolean
+validate_dns_name(const char *name)
+{
+    const char *p;
+    const char *label_start;
+    gsize       len;
+
+    if (!name || !name[0])
+        return FALSE;
+
+    len = strlen(name);
+
+    /* Allow a trailing dot for fully-qualified domain names. */
+    if (name[len - 1] == '.') {
+        if (len == 1)
+            return FALSE;
+        len--;
+    }
+
+    if (len > 253)
+        return FALSE;
+
+    label_start = name;
+    for (p = name; (gsize) (p - name) < len; p++) {
+        gsize label_len;
+
+        if (*p != '.')
+            continue;
+
+        label_len = p - label_start;
+        if (label_len < 1 || label_len > 63)
+            return FALSE;
+
+        if (!g_ascii_isalnum(*label_start) || !g_ascii_isalnum(*(p - 1)))
+            return FALSE;
+
+        for (const char *q = label_start; q < p; q++) {
+            if (!g_ascii_isalnum(*q) && *q != '-')
+                return FALSE;
+        }
+
+        label_start = p + 1;
+    }
+
+    /* Validate the final label. */
+    {
+        const char *end = name + len;
+        gsize       label_len = end - label_start;
+
+        if (label_len < 1 || label_len > 63)
+            return FALSE;
+
+        if (!g_ascii_isalnum(*label_start) || !g_ascii_isalnum(*(end - 1)))
+            return FALSE;
+
+        for (const char *q = label_start; q < end; q++) {
+            if (!g_ascii_isalnum(*q) && *q != '-')
+                return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+static gboolean
 validate_gateway(const char *gateway)
 {
-    const char *p = gateway;
-
     if (!gateway || !gateway[0])
         return FALSE;
 
-    /* Ensure it's a valid DNS name or IP address */
-    p = gateway;
-    while (*p) {
-        if (!isalnum(*p) && (*p != '-') && (*p != '.'))
-            return FALSE;
-        p++;
+    /* Accept URI-style bracket notation for IPv6: [2001:db8::1] */
+    if (gateway[0] == '[') {
+        const char *close = strchr(gateway + 1, ']');
+        /* Must end with ']' and nothing after it */
+        if (close && close[1] == '\0') {
+            gs_free char *bare = g_strndup(gateway + 1, close - (gateway + 1));
+            return g_hostname_is_ip_address(bare);
+        }
+        return FALSE;
     }
-    return TRUE;
+
+    /* Accept valid IPv4 and IPv6 literal addresses. */
+    if (g_hostname_is_ip_address(gateway))
+        return TRUE;
+
+    /* Otherwise, require a syntactically valid DNS hostname. */
+    return validate_dns_name(gateway);
 }
 
 typedef struct ValidateInfo {
@@ -429,17 +506,16 @@ nm_l2tp_properties_validate(NMSettingVpn *s_vpn, GError **error)
 static gboolean
 nm_l2tp_secrets_validate(NMSettingVpn *s_vpn, GError **error)
 {
-    GError *     validate_error = NULL;
-    ValidateInfo info           = {&valid_secrets[0], error, FALSE};
+    ValidateInfo info = {&valid_secrets[0], error, FALSE};
 
     nm_setting_vpn_foreach_secret(s_vpn, validate_one_property, &info);
-    if (validate_error) {
-        g_propagate_error(error, validate_error);
+    if (*error)
         return FALSE;
-    }
     return TRUE;
 }
 
+static gboolean is_ipv4_enabled(NML2tpPlugin *self);
+static gboolean is_ipv6_enabled(NML2tpPlugin *self);
 static void nm_l2tp_stop_ipsec(NML2tpPluginPrivate *priv);
 
 static void
@@ -587,32 +663,67 @@ static PPPOpt ppp_options[] = {{NM_L2TP_KEY_REQUIRE_MPPE, G_TYPE_BOOLEAN, "requi
                                {NULL, G_TYPE_NONE, NULL}};
 
 /**
- * Check that specified UDP socket in 0.0.0.0 is not used and we can bind to it.
+ * Check that specified UDP socket is available on both IPv4 and IPv6 wildcard
+ * addresses. On systems without IPv6 support, only the IPv4 check is used.
  **/
 static gboolean
 is_port_free(int port)
 {
-    struct sockaddr_in addr;
-    int                sock;
+    struct sockaddr_in  addr4;
+    struct sockaddr_in6 addr6;
+    int                 sock;
+    int                 on;
+    gboolean            free_v4;
+    gboolean            free_v6;
+
     g_message("Check port %d", port);
+
+    free_v4 = TRUE;
+    free_v6 = TRUE;
+
     sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (!sock) {
+    if (sock < 0) {
         _LOGW("Can-not create new test socket");
-        return FALSE;
+        free_v4 = FALSE;
+    } else {
+        memset(&addr4, 0, sizeof(addr4));
+        addr4.sin_family      = AF_INET;
+        addr4.sin_port        = htons(port);
+        addr4.sin_addr.s_addr = INADDR_ANY;
+
+        if (bind(sock, (struct sockaddr *) &addr4, sizeof(addr4)) == -1) {
+            g_message("Can't bind to IPv4 port %d", port);
+            free_v4 = FALSE;
+        }
+        close(sock); /* unbind */
     }
 
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family      = AF_INET;
-    addr.sin_port        = htons(port);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    sock = socket(AF_INET6, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        if (errno != EAFNOSUPPORT && errno != EPROTONOSUPPORT) {
+            g_message("Can't create IPv6 test socket for port %d", port);
+            free_v6 = FALSE;
+        }
+    } else {
+        on = 1;
+        if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) == -1) {
+            g_message("Can't set IPv6-only test socket mode for port %d", port);
+            free_v6 = FALSE;
+        } else {
+            memset(&addr6, 0, sizeof(addr6));
+            addr6.sin6_family = AF_INET6;
+            addr6.sin6_port   = htons(port);
+            addr6.sin6_addr   = in6addr_any;
 
-    if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)) == -1) {
-        g_message("Can't bind to port %d", port);
-        return FALSE;
+            if (bind(sock, (struct sockaddr *) &addr6, sizeof(addr6)) == -1) {
+                g_message("Can't bind to IPv6 port %d", port);
+                free_v6 = FALSE;
+            }
+        }
+        close(sock); /* unbind */
     }
-    close(sock); /* unbind */
 
-    return TRUE;
+    return free_v4 && free_v6;
 }
 
 static gboolean
@@ -629,9 +740,9 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
     g_autofree char *      rundir = NULL;
     char                   errorbuf[128];
     gint                   fd = -1;
-    gint64                 max_retries;
     FILE *                 fp;
-    struct in_addr         naddr;
+    struct in_addr         naddr4;
+    struct in6_addr        naddr6;
     int                    port;
     int                    errsv;
     gboolean               use_ephemeral_port;
@@ -721,7 +832,6 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             if (tls_key_filename) {
                 char *copied_file = nm_utils_copy_cert_as_user(tls_key_filename, priv->private_user, error);
                 if (*error) {
-                   close(fd);
                    return FALSE;
                 }
                 g_ptr_array_add(priv->tmp_file_paths, copied_file);
@@ -731,7 +841,6 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             if (tls_cert_filename) {
                 char *copied_file = nm_utils_copy_cert_as_user(tls_cert_filename, priv->private_user, error);
                 if (*error) {
-                   close(fd);
                    return FALSE;
                 }
                 g_ptr_array_add(priv->tmp_file_paths, copied_file);
@@ -741,7 +850,6 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             if (tls_ca_filename) {
                 char *copied_file = nm_utils_copy_cert_as_user(tls_ca_filename, priv->private_user, error);
                 if (*error) {
-                   close(fd);
                    return FALSE;
                 }
                 g_ptr_array_add(priv->tmp_file_paths, copied_file);
@@ -794,15 +902,15 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
 
             filename = g_strdup_printf("%s/ipsec.nm-l2tp.secrets", ipsec_conf_dir);
             fd       = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP);
-            g_free(filename);
             if (fd == -1) {
                 snprintf(errorbuf,
                          sizeof(errorbuf),
                          _("Could not write %s/ipsec.nm-l2tp.secrets"),
                          ipsec_conf_dir);
+                g_free(filename);
                 return nm_l2tp_ipsec_error(error, errorbuf);
             }
-            g_ptr_array_add(priv->tmp_file_paths, g_strdup(filename));
+            g_ptr_array_add(priv->tmp_file_paths, filename);
 
             if (priv->machine_authtype == PSK_AUTH) {
                 value = nm_setting_vpn_get_data_item(s_vpn, NM_L2TP_KEY_IPSEC_REMOTE_ID);
@@ -811,10 +919,11 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
                         write_config_option(fd, "%%any ");
                     }
                     /* Only literal strings starting with @ and IP addresses
-                       are allowed as IDs with IKEv1 PSK */
+                       (IPv4 or IPv6) are allowed as IDs with IKEv1 PSK. */
                     if (value[0] == '@') {
                         write_config_option(fd, "%s ", value);
-                    } else if (inet_pton(AF_INET, value, &naddr)) {
+                    } else if (inet_pton(AF_INET, value, &naddr4)
+                               || inet_pton(AF_INET6, value, &naddr6)) {
                         write_config_option(fd, "%s ", value);
                     } else {
                         write_config_option(fd, "%%any ");
@@ -927,11 +1036,11 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
          **/
         filename = g_strdup_printf("%s/ipsec.conf", rundir);
         fd       = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-        g_free(filename);
         if (fd == -1) {
+            g_free(filename);
             return nm_l2tp_ipsec_error(error, _("Could not write ipsec config"));
         }
-        g_ptr_array_add(priv->tmp_file_paths, g_strdup(filename));
+        g_ptr_array_add(priv->tmp_file_paths, filename);
 
         /* IPsec config section */
         write_config_option(fd, "config setup\n");
@@ -993,6 +1102,12 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         }
         if (!use_ephemeral_port) {
             write_config_option(fd, "  leftprotoport=udp/l2tp\n");
+        }
+        if (priv->machine_authtype == PSK_AUTH) {
+            value = nm_setting_vpn_get_data_item(s_vpn, NM_L2TP_KEY_IPSEC_GROUP_NAME);
+            if (value) {
+                write_config_option(fd, "  leftid=%s\n", value);
+            }
         }
         if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_LIBRESWAN
             && priv->machine_authtype == TLS_AUTH) {
@@ -1141,32 +1256,51 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         }
 
         write_config_option(fd, "[tunnel.t1]\n");
-        if (!use_ephemeral_port)
-            write_config_option(fd, "local = \"0.0.0.0:1701\"\n");
-        write_config_option(fd, "peer = \"%s:1701\"\n", priv->saddr);
+        if (!use_ephemeral_port) {
+            if (priv->naddr_family == AF_INET6)
+                write_config_option(fd, "local = \"[::]:1701\"\n");
+            else
+                write_config_option(fd, "local = \"0.0.0.0:1701\"\n");
+        }
+        if (priv->naddr_family == AF_INET6)
+            write_config_option(fd, "peer = \"[%s]:1701\"\n", priv->saddr);
+        else
+            write_config_option(fd, "peer = \"%s:1701\"\n", priv->saddr);
         write_config_option(fd, "version = \"l2tpv2\"\n");
         write_config_option(fd, "encap = \"udp\"\n");
         write_config_option(fd, "[tunnel.t1.session.s1]\n");
         write_config_option(fd, "pseudowire = \"ppp\"\n");
         write_config_option(fd, "pppd_args = \"%s/ppp-options\"\n", rundir);
     } else {
+        if (priv->naddr_family == AF_INET6) {
+            _LOGW("xl2tpd does not support IPv6 gateways; use kl2tpd or an IPv6-capable xl2tpd fork");
+        }
+
         /* xl2tpd config */
         filename = g_strdup_printf("%s/xl2tpd.conf", rundir);
         fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-        g_free(filename);
 
         if (fd == -1) {
+            g_free(filename);
             return nm_l2tp_ipsec_error(error, _("Could not write xl2tpd config."));
         }
-        g_ptr_array_add(priv->tmp_file_paths, g_strdup(filename));
+        g_ptr_array_add(priv->tmp_file_paths, filename);
 
         write_config_option(fd, "[global]\n");
         write_config_option(fd, "access control = yes\n");
 
         write_config_option(fd, "port = %d\n", port);
-        if (getenv("NM_L2TP_XL2TPD_MAX_RETRIES")) {
-            max_retries = strtol(getenv("NM_L2TP_XL2TPD_MAX_RETRIES"), NULL, 10);
-            write_config_option(fd, "max retries = %ld\n", max_retries);
+        value = nm_setting_vpn_get_data_item(s_vpn, NM_L2TP_KEY_XL2TPD_MAX_RETRIES);
+        if (!(value && *value))
+            value = getenv("NM_L2TP_XL2TPD_MAX_RETRIES");
+        if (value && *value) {
+            long int tmp_int;
+
+            if (str_to_int(value, &tmp_int)) {
+                write_config_option(fd, "max retries = %ld\n", tmp_int);
+            } else {
+                _LOGW("failed to convert xl2tpd max retries value '%s'", value);
+            }
         }
         if (_LOGD_enabled()) {
             /* write_config_option (fd, "debug network = yes\n"); */
@@ -1195,12 +1329,12 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
 
     filename = g_strdup_printf("%s/ppp-options", rundir);
     fd       = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-    g_free(filename);
 
     if (fd == -1) {
+        g_free(filename);
         return nm_l2tp_ipsec_error(error, _("Could not write ppp options."));
     }
-    g_ptr_array_add(priv->tmp_file_paths, g_strdup(filename));
+    g_ptr_array_add(priv->tmp_file_paths, filename);
 
     if (_LOGD_enabled())
         write_config_option(fd, "debug\n");
@@ -1213,11 +1347,11 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
     s_ip4 = nm_connection_get_setting_ip4_config(priv->connection);
     if (s_ip4) {
 
-        value = nm_setting_ip_config_get_method (s_ip4);
+        value = nm_setting_ip_config_get_method(s_ip4);
         if (nm_streq0(value, NM_SETTING_IP4_CONFIG_METHOD_MANUAL)) {
-            const char *ipv4_str = NULL;
-            const char *gway_str = NULL;
-            const char *mask_str = NULL;
+            const char *ipv4_str      = NULL;
+            const char *ipcp_peer_str = NULL;
+            const char *mask_str      = NULL;
             char buf[NM_UTILS_INET_ADDRSTRLEN];
             NMIPAddress *ipv4 = NULL;
 
@@ -1234,9 +1368,16 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
                 ipv4_str = nm_ip_address_get_address(ipv4);
                 mask_str = nm_utils_inet4_ntop(nm_utils_ip4_prefix_to_netmask(prefix), buf);
 
-                gway_str = nm_setting_ip_config_get_gateway(s_ip4);
-                if (ipv4_str && gway_str) {
-                    write_config_option(fd, "%s:%s\n", ipv4_str, gway_str);
+                /* Prefer the dedicated ipcp-peer-ip VPN key so the user can
+                 * suggest an IPCP peer address without also setting ipv4.gateway
+                 * (which would collide with ipv4.never-default).  Fall back to
+                 * ipv4.gateway for backwards compatibility.
+                 */
+                ipcp_peer_str = nm_setting_vpn_get_data_item(s_vpn, NM_L2TP_KEY_IPCP_PEER_IP);
+                if (!ipcp_peer_str || !ipcp_peer_str[0])
+                    ipcp_peer_str = nm_setting_ip_config_get_gateway(s_ip4);
+                if (ipv4_str && ipcp_peer_str) {
+                    write_config_option(fd, "%s:%s\n", ipv4_str, ipcp_peer_str);
                     if (mask_str) {
                         write_config_option(fd, "netmask %s\n", mask_str);
                     }
@@ -1246,7 +1387,7 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
                 }
             }
         }
-        if (nm_streq (value, NM_SETTING_IP4_CONFIG_METHOD_DISABLED)) {
+        if (!is_ipv4_enabled(plugin)) {
             write_config_option(fd, "noip\n");
         } else {
             if (!nm_setting_ip_config_get_ignore_auto_dns(s_ip4)) {
@@ -1261,6 +1402,11 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
     is_local_set = FALSE;
 
     write_config_option(fd, "nodefaultroute\n");
+
+    /* Any IPv6 configuration options */
+    if (is_ipv6_enabled(plugin)) {
+        write_config_option(fd, "+ipv6\n");
+    }
 
     /* Don't need to auth the L2TP server */
     write_config_option(fd, "noauth\n");
@@ -1537,7 +1683,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
     NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE(plugin);
     char                 cmdbuf[256];
     char *               output = NULL;
-    int                  sys    = 0, status, retry;
+    int                  sys    = 0, status, status_rc, retry;
     int                  msec;
     gboolean             rc = FALSE;
     gchar *              argv[5];
@@ -1548,7 +1694,8 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null 2>&1", priv->ipsec_binary_path);
         g_message("%s", cmdbuf);
         sys = system(cmdbuf);
-        if (sys == 8448) {
+        status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
+        if (status_rc != 0) {
             snprintf(cmdbuf, sizeof(cmdbuf), "%s start", priv->ipsec_binary_path);
             g_message("%s", cmdbuf);
             sys = system(cmdbuf);
@@ -1566,15 +1713,18 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         /* wait for Libreswan to get ready before performing an up operation */
         snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null 2>&1", priv->ipsec_binary_path);
         sys = system(cmdbuf);
-        for (retry = 0; retry < 5 && sys != 0; retry++) {
+        status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
+        for (retry = 0; retry < 5 && status_rc != 0; retry++) {
             sleep(1);
             sys = system(cmdbuf);
+            status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
         }
     } else { /* strongswan */
         snprintf(cmdbuf, sizeof(cmdbuf), "%s status > /dev/null 2>&1", priv->ipsec_binary_path);
         g_message("%s", cmdbuf);
         sys = system(cmdbuf);
-        if (sys == 768) {
+        status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
+        if (status_rc != 0) {
             snprintf(cmdbuf,
                      sizeof(cmdbuf),
                      "%s start "
@@ -1602,9 +1752,11 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         /* wait for strongSwan to get ready before performing an up operation  */
         snprintf(cmdbuf, sizeof(cmdbuf), "%s rereadsecrets", priv->ipsec_binary_path);
         sys = system(cmdbuf);
-        for (retry = 0; retry < 5 && sys != 0; retry++) {
+        status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
+        for (retry = 0; retry < 5 && status_rc != 0; retry++) {
             sleep(1);
             sys = system(cmdbuf);
+            status_rc = (sys >= 0 && WIFEXITED(sys)) ? WEXITSTATUS(sys) : -1;
         }
         sys = 0;
     }
@@ -1915,10 +2067,10 @@ handle_set_state(NMDBusL2tpPpp *        object,
 }
 
 static gboolean
-handle_set_ip4_config(NMDBusL2tpPpp *        object,
-                      GDBusMethodInvocation *invocation,
-                      GVariant *             arg_config,
-                      gpointer               user_data)
+handle_set_config(NMDBusL2tpPpp *        object,
+                  GDBusMethodInvocation *invocation,
+                  GVariant *             arg_config,
+                  gpointer               user_data)
 {
     NML2tpPlugin *       plugin = NM_L2TP_PLUGIN(user_data);
     NML2tpPluginPrivate *priv   = NM_L2TP_PLUGIN_GET_PRIVATE(plugin);
@@ -1937,13 +2089,72 @@ handle_set_ip4_config(NMDBusL2tpPpp *        object,
         g_variant_unref(value);
     }
 
-    /* Insert the external VPN gateway into the table, which the pppd plugin
-     * simply doesn't know about.
+    /* Insert the external VPN gateway into the generic config, which
+     * NetworkManager consumes for both IPv4 and IPv6 external-gateway routes.
      */
-    g_variant_builder_add(&builder,
-                          "{sv}",
-                          NM_VPN_PLUGIN_CONFIG_EXT_GATEWAY,
-                          g_variant_new_uint32(priv->naddr));
+    if (priv->naddr_family == AF_INET) {
+        g_variant_builder_add(&builder,
+                              "{sv}",
+                              NM_VPN_PLUGIN_CONFIG_EXT_GATEWAY,
+                              g_variant_new_uint32(priv->naddr));
+    } else if (priv->naddr_family == AF_INET6
+               && priv->naddr_sockaddr_len >= sizeof(struct sockaddr_in6)) {
+        const struct sockaddr_in6 *in6ptr = (const struct sockaddr_in6 *) &priv->naddr_sockaddr;
+
+        g_variant_builder_add(&builder,
+                              "{sv}",
+                              NM_VPN_PLUGIN_CONFIG_EXT_GATEWAY,
+                              g_variant_new_fixed_array(G_VARIANT_TYPE_BYTE,
+                                                        &in6ptr->sin6_addr,
+                                                        sizeof(in6ptr->sin6_addr),
+                                                        1));
+    }
+
+    new_config = g_variant_builder_end(&builder);
+    g_variant_ref_sink(new_config);
+
+    nm_vpn_service_plugin_set_config(NM_VPN_SERVICE_PLUGIN(plugin), new_config);
+    g_variant_unref(new_config);
+
+    g_dbus_method_invocation_return_value(invocation, NULL);
+    return TRUE;
+}
+
+static gboolean
+handle_set_ip4_config(NMDBusL2tpPpp *        object,
+                      GDBusMethodInvocation *invocation,
+                      GVariant *             arg_config,
+                      gpointer               user_data)
+{
+    NML2tpPlugin *       plugin = NM_L2TP_PLUGIN(user_data);
+    NML2tpPluginPrivate *priv   = NM_L2TP_PLUGIN_GET_PRIVATE(plugin);
+    NMSettingIPConfig   *s_ip4;
+    GVariantIter         iter;
+    const char *         key;
+    GVariant *           value;
+    GVariantBuilder      builder;
+    GVariant *           new_config;
+
+    remove_timeout_handler(plugin);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
+    g_variant_iter_init(&iter, arg_config);
+    while (g_variant_iter_next(&iter, "{&sv}", &key, &value)) {
+        g_variant_builder_add(&builder, "{sv}", key, value);
+        g_variant_unref(value);
+    }
+
+    /* Honour ipv4.never-default: tell NM not to install a default route through
+     * this VPN when the user has opted out of it on the connection.
+     */
+    s_ip4 = nm_connection_get_setting_ip4_config(priv->connection);
+    if (s_ip4 && nm_setting_ip_config_get_never_default(s_ip4)) {
+        g_variant_builder_add(&builder,
+                              "{sv}",
+                              NM_VPN_PLUGIN_IP4_CONFIG_NEVER_DEFAULT,
+                              g_variant_new_boolean(TRUE));
+    }
+
     new_config = g_variant_builder_end(&builder);
     g_variant_ref_sink(new_config);
 
@@ -1955,16 +2166,91 @@ handle_set_ip4_config(NMDBusL2tpPpp *        object,
 }
 
 static gboolean
+handle_set_ip6_config(NMDBusL2tpPpp *        object,
+                      GDBusMethodInvocation *invocation,
+                      GVariant *             arg_config,
+                      gpointer               user_data)
+{
+    NML2tpPlugin *       plugin = NM_L2TP_PLUGIN(user_data);
+    NML2tpPluginPrivate *priv   = NM_L2TP_PLUGIN_GET_PRIVATE(plugin);
+    NMSettingIPConfig *  s_ip6;
+    GVariantIter         iter;
+    const char *         key;
+    GVariant *           value;
+    GVariantBuilder      builder;
+    GVariant *           new_config;
+
+    remove_timeout_handler(plugin);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{sv}"));
+    g_variant_iter_init(&iter, arg_config);
+    while (g_variant_iter_next(&iter, "{&sv}", &key, &value)) {
+        g_variant_builder_add(&builder, "{sv}", key, value);
+        g_variant_unref(value);
+    }
+
+    /* Honour ipv6.never-default: tell NM not to install a default route through
+     * this VPN when the user has opted out of it on the connection.
+     */
+    s_ip6 = nm_connection_get_setting_ip6_config(priv->connection);
+    if (s_ip6 && nm_setting_ip_config_get_never_default(s_ip6)) {
+        g_variant_builder_add(&builder,
+                              "{sv}",
+                              NM_VPN_PLUGIN_IP6_CONFIG_NEVER_DEFAULT,
+                              g_variant_new_boolean(TRUE));
+    }
+
+    new_config = g_variant_builder_end(&builder);
+    g_variant_ref_sink(new_config);
+
+    nm_vpn_service_plugin_set_ip6_config(NM_VPN_SERVICE_PLUGIN(plugin), new_config);
+    g_variant_unref(new_config);
+
+    g_dbus_method_invocation_return_value(invocation, NULL);
+    return TRUE;
+}
+
+static gboolean
+is_ipv4_enabled(NML2tpPlugin *self)
+{
+    NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE(self);
+    NMSettingIPConfig *  s_ip4;
+    const char *         method;
+
+    s_ip4 = nm_connection_get_setting_ip4_config(priv->connection);
+    if (!s_ip4)
+        return TRUE;
+
+    method = nm_setting_ip_config_get_method(s_ip4);
+    return !nm_streq0(method, NM_SETTING_IP4_CONFIG_METHOD_DISABLED);
+}
+
+static gboolean
+is_ipv6_enabled(NML2tpPlugin *self)
+{
+    NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE(self);
+    NMSettingIPConfig *  s_ip6;
+    const char *         method;
+
+    s_ip6 = nm_connection_get_setting_ip6_config(priv->connection);
+    if (!s_ip6)
+        return TRUE;
+
+    method = nm_setting_ip_config_get_method(s_ip6);
+    return !nm_streq0(method, NM_SETTING_IP6_CONFIG_METHOD_IGNORE)
+           && !nm_streq0(method, NM_SETTING_IP6_CONFIG_METHOD_DISABLED);
+}
+
+static gboolean
 lookup_gateway(NML2tpPlugin *self, const char *src, GError **error)
 {
-    NML2tpPluginPrivate *priv    = NM_L2TP_PLUGIN_GET_PRIVATE(self);
-    const char *         p       = src;
-    gboolean             is_name = FALSE;
-    struct in_addr       naddr;
+    NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE(self);
     struct addrinfo      hints;
     struct addrinfo *    result = NULL, *rp;
     int                  err;
-    char                 buf[INET_ADDRSTRLEN];
+    gboolean             ipv4_enabled;
+    gboolean             ipv6_enabled;
+    char                 buf[INET6_ADDRSTRLEN];
 
     g_return_val_if_fail(src != NULL, FALSE);
 
@@ -1973,53 +2259,64 @@ lookup_gateway(NML2tpPlugin *self, const char *src, GError **error)
         priv->saddr = NULL;
     }
 
-    while (*p) {
-        if (*p != '.' && !isdigit(*p)) {
-            is_name = TRUE;
-            break;
-        }
-        p++;
+    priv->naddr              = 0;
+    priv->naddr_family       = AF_UNSPEC;
+    priv->naddr_sockaddr_len = 0;
+    memset(&priv->naddr_sockaddr, 0, sizeof(priv->naddr_sockaddr));
+
+    ipv4_enabled = is_ipv4_enabled(self);
+    ipv6_enabled = is_ipv6_enabled(self);
+    if (!ipv4_enabled && !ipv6_enabled) {
+        return nm_l2tp_ipsec_error(error,
+                                   _("IPv4 and IPv6 are both disabled for this connection."));
     }
 
-    if (is_name == FALSE) {
-        errno = 0;
-        if (inet_pton(AF_INET, src, &naddr) <= 0) {
-            return nm_l2tp_ipsec_error(error, _("couldn't convert L2TP VPN gateway IP address."));
-        }
-        priv->naddr = naddr.s_addr;
-        priv->saddr = g_strdup(src);
-        return TRUE;
-    }
-
-    /* It's a hostname, resolve it */
+    /* getaddrinfo(3) applies RFC 6724 address‑selection ordering. */
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
+    if (ipv4_enabled && ipv6_enabled) {
+        hints.ai_family = AF_UNSPEC;
+    } else if (ipv4_enabled) {
+        hints.ai_family = AF_INET;
+    } else {
+        hints.ai_family = AF_INET6;
+    }
+    hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags  = AI_ADDRCONFIG;
     err             = getaddrinfo(src, NULL, &hints, &result);
     if (err != 0) {
         return nm_l2tp_ipsec_error(error, _("couldn't look up L2TP VPN gateway IP address "));
     }
 
-    /* If the hostname resolves to multiple IP addresses, use the first one.
-     * FIXME: maybe we just want to use a random one instead?
-     */
-    memset(&naddr, 0, sizeof(naddr));
+    /* Use the first suitable candidate as ordered by the resolver. */
     for (rp = result; rp; rp = rp->ai_next) {
-        if ((rp->ai_family == AF_INET) && (rp->ai_addrlen == sizeof(struct sockaddr_in))) {
+        if ((rp->ai_family == AF_INET) && (rp->ai_addrlen >= sizeof(struct sockaddr_in))) {
             struct sockaddr_in *inptr = (struct sockaddr_in *) rp->ai_addr;
 
-            memcpy(&naddr, &(inptr->sin_addr), sizeof(struct in_addr));
+            priv->naddr = inptr->sin_addr.s_addr;
+            priv->naddr_family = AF_INET;
+            priv->naddr_sockaddr_len = sizeof(struct sockaddr_in);
+            memcpy(&priv->naddr_sockaddr, inptr, sizeof(struct sockaddr_in));
+            priv->saddr = g_strdup(inet_ntop(AF_INET, &inptr->sin_addr, buf, sizeof(buf)));
+            break;
+        }
+
+        if ((rp->ai_family == AF_INET6) && (rp->ai_addrlen >= sizeof(struct sockaddr_in6))) {
+            struct sockaddr_in6 *in6ptr = (struct sockaddr_in6 *) rp->ai_addr;
+
+            priv->naddr_family = AF_INET6;
+            priv->naddr_sockaddr_len = sizeof(struct sockaddr_in6);
+            memcpy(&priv->naddr_sockaddr, in6ptr, sizeof(struct sockaddr_in6));
+            priv->saddr = g_strdup(inet_ntop(AF_INET6, &in6ptr->sin6_addr, buf, sizeof(buf)));
             break;
         }
     }
     freeaddrinfo(result);
 
-    if (naddr.s_addr == 0) {
+    if (!priv->saddr || priv->naddr_family == AF_UNSPEC) {
         return nm_l2tp_ipsec_error(error, _("no usable addresses returned for L2TP VPN gateway "));
     }
 
-    priv->naddr = naddr.s_addr;
-    priv->saddr = g_strdup(inet_ntop(AF_INET, &naddr, buf, sizeof(buf)));
+    g_message("resolved L2TP gateway '%s' to %s", src, priv->saddr);
 
     return TRUE;
 }
@@ -2029,33 +2326,57 @@ get_localaddr (NML2tpPlugin *self,
                GError **error)
 {
     NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE (self);
-    char abuf[INET_ADDRSTRLEN+1] = {};
-    struct sockaddr_in addr = {};
-    socklen_t alen = sizeof(addr);
+    char abuf[INET6_ADDRSTRLEN + 1] = {};
+    struct sockaddr_storage addr = {};
+    socklen_t alen;
     int fd;
 
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (priv->naddr_family == AF_UNSPEC || priv->naddr_sockaddr_len == 0)
+        return nm_l2tp_ipsec_error(error, _("couldn't determine L2TP VPN gateway address family"));
+
+    fd = socket(priv->naddr_family, SOCK_DGRAM, 0);
     if (fd < 0) {
         return nm_l2tp_ipsec_error(error, _("couldn't determine local IP to contact L2TP VPN gateway"));
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(1701);
-    addr.sin_addr.s_addr = priv->naddr;
+    memcpy(&addr, &priv->naddr_sockaddr, priv->naddr_sockaddr_len);
+    if (priv->naddr_family == AF_INET) {
+        struct sockaddr_in *addr4 = (struct sockaddr_in *) &addr;
+        addr4->sin_port           = htons(1701);
+    } else {
+        struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) &addr;
+        addr6->sin6_port           = htons(1701);
+    }
 
-    if (0 != connect (fd, &addr, sizeof(addr))) {
+    if (0 != connect(fd, (struct sockaddr *) &addr, priv->naddr_sockaddr_len)) {
         close (fd);
         return nm_l2tp_ipsec_error(error, _("unable to connect to L2TP VPN gateway"));
     }
 
-    memset( &addr, 0, sizeof(addr));
-    if (0 != getsockname( fd, &addr, &alen)) {
+    memset(&addr, 0, sizeof(addr));
+    alen = sizeof(addr);
+    if (0 != getsockname(fd, (struct sockaddr *) &addr, &alen)) {
         close (fd);
         return nm_l2tp_ipsec_error(error, _("failed to get local IP"));
     }
 
-    priv->slocaladdr = g_strdup (inet_ntop (AF_INET, &addr.sin_addr.s_addr, abuf, alen-1));
+    if (priv->slocaladdr) {
+        g_free(priv->slocaladdr);
+        priv->slocaladdr = NULL;
+    }
+
+    if (((struct sockaddr *) &addr)->sa_family == AF_INET) {
+        struct sockaddr_in *addr4 = (struct sockaddr_in *) &addr;
+        priv->slocaladdr = g_strdup(inet_ntop(AF_INET, &addr4->sin_addr, abuf, sizeof(abuf)));
+    } else if (((struct sockaddr *) &addr)->sa_family == AF_INET6) {
+        struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *) &addr;
+        priv->slocaladdr = g_strdup(inet_ntop(AF_INET6, &addr6->sin6_addr, abuf, sizeof(abuf)));
+    }
+
     close(fd);
+
+    if (!priv->slocaladdr)
+        return nm_l2tp_ipsec_error(error, _("failed to format local IP address"));
 
     return TRUE;
 }
@@ -2066,6 +2387,7 @@ real_connect(NMVpnServicePlugin *plugin, NMConnection *connection, GError **erro
     NML2tpPluginPrivate *priv = NM_L2TP_PLUGIN_GET_PRIVATE(plugin);
     NMSettingVpn *       s_vpn;
     const char *         gwaddr;
+    gs_free char *       gwaddr_stripped = NULL;
     const char *         value;
     const char *         uuid;
     const char *         private_user;
@@ -2125,17 +2447,26 @@ real_connect(NMVpnServicePlugin *plugin, NMConnection *connection, GError **erro
         return nm_l2tp_ipsec_error(error, _("Invalid or missing L2TP gateway."));
     }
 
-    /* Look up the IP address of the L2TP server; if the server has multiple
-     * addresses, because we can't get the actual IP used back from xl2tp itself,
-     * we need to do name->addr conversion here and only pass the IP address
-     * down to pppd/l2tp.  If only xl2tp could somehow return the IP address it's
-     * using for the connection, we wouldn't need to do this...
+    /* Strip URI-style bracket notation for IPv6: [2001:db8::1] -> 2001:db8::1 */
+    if (gwaddr[0] == '[') {
+        const char *close = strchr(gwaddr + 1, ']');
+        if (close && close[1] == '\0')
+            gwaddr = gwaddr_stripped = g_strndup(gwaddr + 1, close - (gwaddr + 1));
+    }
+
+    /* Look up the IP address of the L2TP/IPsec gateway. We need to do name->addr
+     * conversion here and only pass the IP address down to the daemons because:
+     * - If the server has multiple addresses, we can't reliably determine which IP
+     *   was actually used by the L2TP daemon (xl2tpd/kl2tpd) or IPsec itself
+     * - Both the L2TP and IPsec daemons need the actual IP for proper tunnel setup
      */
     if (!lookup_gateway(NM_L2TP_PLUGIN(plugin), gwaddr, error))
         return FALSE;
 
-    if (!get_localaddr(NM_L2TP_PLUGIN (plugin), error))
+    if (!get_localaddr(NM_L2TP_PLUGIN (plugin), error)) {
         priv->slocaladdr = NULL;
+        g_clear_error(error);
+    }
 
     if (!nm_l2tp_properties_validate(s_vpn, error))
         return FALSE;
@@ -2323,6 +2654,10 @@ state_changed_cb(GObject *object, NMVpnServiceState state, gpointer user_data)
             g_free(priv->saddr);
             priv->saddr = NULL;
         }
+        if (priv->slocaladdr) {
+            g_free(priv->slocaladdr);
+            priv->slocaladdr = NULL;
+        }
         break;
     default:
         break;
@@ -2343,13 +2678,19 @@ dispose(GObject *object)
             g_dbus_interface_skeleton_unexport(skeleton);
         g_signal_handlers_disconnect_by_func(skeleton, handle_need_secrets, object);
         g_signal_handlers_disconnect_by_func(skeleton, handle_set_state, object);
+        g_signal_handlers_disconnect_by_func(skeleton, handle_set_config, object);
         g_signal_handlers_disconnect_by_func(skeleton, handle_set_ip4_config, object);
+        g_signal_handlers_disconnect_by_func(skeleton, handle_set_ip6_config, object);
     }
 
     g_clear_object(&priv->connection);
     if (priv->saddr) {
         g_free(priv->saddr);
         priv->saddr = NULL;
+    }
+    if (priv->slocaladdr) {
+        g_free(priv->slocaladdr);
+        priv->slocaladdr = NULL;
     }
 
     if (priv->tmp_file_paths) {
@@ -2421,8 +2762,16 @@ init_sync(GInitable *object, GCancellable *cancellable, GError **error)
                      object);
     g_signal_connect(priv->dbus_skeleton, "handle-set-state", G_CALLBACK(handle_set_state), object);
     g_signal_connect(priv->dbus_skeleton,
+                     "handle-set-config",
+                     G_CALLBACK(handle_set_config),
+                     object);
+    g_signal_connect(priv->dbus_skeleton,
                      "handle-set-ip4-config",
                      G_CALLBACK(handle_set_ip4_config),
+                     object);
+    g_signal_connect(priv->dbus_skeleton,
+                     "handle-set-ip6-config",
+                     G_CALLBACK(handle_set_ip6_config),
                      object);
 
     g_object_unref(bus);
