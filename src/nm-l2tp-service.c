@@ -153,12 +153,6 @@ _LOGD_enabled(void)
 
 /*****************************************************************************/
 
-/* Legacy KDE Plasma-nm L2TP keys */
-#define KDE_PLASMA_L2TP_KEY_USE_CERT "use-cert"
-#define KDE_PLASMA_L2TP_KEY_CERT_PUB "cert-pub"
-#define KDE_PLASMA_L2TP_KEY_CERT_CA  "cert-ca"
-#define KDE_PLASMA_L2TP_KEY_CERT_KEY "cert-key"
-
 typedef struct {
     const char *name;
     GType       type;
@@ -218,10 +212,6 @@ static const ValidProperty valid_properties[] = {
     {NM_L2TP_KEY_IPSEC_PSK "-flags", G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_MACHINE_CERTPASS "-flags", G_TYPE_UINT, FALSE},
     {NM_L2TP_KEY_IPCP_PEER_IP, G_TYPE_STRING, FALSE},
-    {KDE_PLASMA_L2TP_KEY_USE_CERT, G_TYPE_UINT, FALSE},
-    {KDE_PLASMA_L2TP_KEY_CERT_CA, G_TYPE_STRING, FALSE},
-    {KDE_PLASMA_L2TP_KEY_CERT_PUB, G_TYPE_STRING, FALSE},
-    {KDE_PLASMA_L2TP_KEY_CERT_KEY, G_TYPE_STRING, FALSE},
     {NULL}};
 
 static ValidProperty valid_secrets[] = {{NM_L2TP_KEY_PASSWORD, G_TYPE_STRING, FALSE},
@@ -383,6 +373,20 @@ typedef struct ValidateInfo {
     gboolean             have_items;
 } ValidateInfo;
 
+static gboolean
+string_contains_control_char(const char *value)
+{
+    if (!value)
+        return FALSE;
+
+    for (const char *p = value; *p; p++) {
+        if (g_ascii_iscntrl(*p))
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 validate_one_property(const char *key, const char *value, gpointer user_data)
 {
@@ -406,6 +410,15 @@ validate_one_property(const char *key, const char *value, gpointer user_data)
             continue;
         switch (prop.type) {
         case G_TYPE_STRING:
+            if (string_contains_control_char(value)) {
+                g_set_error(info->error,
+                            NM_VPN_PLUGIN_ERROR,
+                            NM_VPN_PLUGIN_ERROR_BAD_ARGUMENTS,
+                            _("property '%s' contains a control character"),
+                            prop.name);
+                return;
+            }
+
             if (!strcmp(prop.name, NM_L2TP_KEY_GATEWAY)) {
                 if (validate_gateway(value))
                     return; /* valid */
@@ -416,7 +429,6 @@ validate_one_property(const char *key, const char *value, gpointer user_data)
                             _("invalid gateway '%s'"),
                             value);
             }
-
             return;
         case G_TYPE_UINT:
             errno = 0;
@@ -796,18 +808,6 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_IPSEC_REMOTE_ID, value);
     }
 
-    /* Map legacy KDE Plasma-nm keys to equivalent new keys */
-    value = nm_setting_vpn_get_data_item(s_vpn, KDE_PLASMA_L2TP_KEY_USE_CERT);
-    if (nm_streq0(value, "yes")) {
-        nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_USER_AUTH_TYPE, NM_L2TP_AUTHTYPE_TLS);
-        value = nm_setting_vpn_get_data_item(s_vpn, KDE_PLASMA_L2TP_KEY_CERT_CA);
-        nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_USER_CA, value);
-        value = nm_setting_vpn_get_data_item(s_vpn, KDE_PLASMA_L2TP_KEY_CERT_PUB);
-        nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_USER_CERT, value);
-        value = nm_setting_vpn_get_data_item(s_vpn, KDE_PLASMA_L2TP_KEY_CERT_KEY);
-        nm_setting_vpn_add_data_item(s_vpn, NM_L2TP_KEY_USER_KEY, value);
-    }
-
     priv->user_authtype    = PASSWORD_AUTH;
     priv->machine_authtype = PSK_AUTH;
 
@@ -1045,14 +1045,22 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         /* IPsec config section */
         write_config_option(fd, "config setup\n");
         if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_LIBRESWAN) {
-            if (getenv("PLUTODEBUG")) {
-                write_config_option(fd, "  plutodebug=\"%s\"\n\n", getenv("PLUTODEBUG"));
+            const char *plutodebug = getenv("PLUTODEBUG");
+
+            if (plutodebug && !string_contains_control_char(plutodebug)) {
+                write_config_option(fd, "  plutodebug=\"%s\"\n\n", plutodebug);
+            } else if (plutodebug) {
+                _LOGW("Ignoring PLUTODEBUG environment variable because it contains a control character");
             } else if (_LOGD_enabled()) {
                 write_config_option(fd, "  plutodebug=\"all\"\n\n");
             }
         } else if (priv->ipsec_daemon == NM_L2TP_IPSEC_DAEMON_STRONGSWAN) {
-            if (getenv("CHARONDEBUG")) {
-                write_config_option(fd, "  charondebug=\"%s\"\n\n", getenv("CHARONDEBUG"));
+            const char *charondebug = getenv("CHARONDEBUG");
+
+            if (charondebug && !string_contains_control_char(charondebug)) {
+                write_config_option(fd, "  charondebug=\"%s\"\n\n", charondebug);
+            } else if (charondebug) {
+                _LOGW("Ignoring CHARONDEBUG environment variable because it contains a control character");
             } else if (_LOGD_enabled()) {
                 /* Default strongswan debug level is 1 (control), set it to 2 (controlmore) for ike, esp & cfg */
                 write_config_option(fd, "  charondebug=\"ike 2, esp 2, cfg 2\"\n\n");
@@ -1577,6 +1585,14 @@ nm_l2tp_config_write(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
         if (!value || !*value)
             value = nm_setting_vpn_get_user_name(s_vpn);
         if (value && *value) {
+            if (string_contains_control_char(value)) {
+                g_set_error(error,
+                            NM_VPN_PLUGIN_ERROR,
+                            NM_VPN_PLUGIN_ERROR_BAD_ARGUMENTS,
+                            _("VPN username contains a control character"));
+                close(fd);
+                return FALSE;
+            }
             write_config_option(fd, "user \"%s\"\n", value);
         }
         for (int i = 0; ppp_auth_options[i].name; i++) {
@@ -1868,6 +1884,7 @@ nm_l2tp_start_ipsec(NML2tpPlugin *plugin, NMSettingVpn *s_vpn, GError **error)
             snprintf(cmdbuf, sizeof(cmdbuf), "%s stop", priv->ipsec_binary_path);
             sys = system(cmdbuf);
         }
+        g_message("Could not establish IPsec connection.");
         return nm_l2tp_ipsec_error(error, _("Could not establish IPsec connection."));
     }
 
@@ -2023,6 +2040,14 @@ handle_need_secrets(NMDBusL2tpPpp *object, GDBusMethodInvocation *invocation, gp
                                                           NM_VPN_PLUGIN_ERROR,
                                                           NM_VPN_PLUGIN_ERROR_INVALID_CONNECTION,
                                                           _("Missing VPN username."));
+            return FALSE;
+        }
+
+        if (string_contains_control_char(user)) {
+            g_dbus_method_invocation_return_error_literal(invocation,
+                                                          NM_VPN_PLUGIN_ERROR,
+                                                          NM_VPN_PLUGIN_ERROR_INVALID_CONNECTION,
+                                                          _("VPN username contains a control character."));
             return FALSE;
         }
 
@@ -2506,12 +2531,6 @@ real_need_secrets(NMVpnServicePlugin *plugin,
     g_return_val_if_fail(NM_IS_CONNECTION(connection), FALSE);
 
     s_vpn = nm_connection_get_setting_vpn(connection);
-
-    /* Legacy KDE Plasma-nm certificate support does not handle password protected private keys */
-    value = nm_setting_vpn_get_data_item(s_vpn, KDE_PLASMA_L2TP_KEY_USE_CERT);
-    if (nm_streq0(value, "yes")) {
-        return FALSE;
-    }
 
     value = nm_setting_vpn_get_data_item(s_vpn, NM_L2TP_KEY_USER_AUTH_TYPE);
     if (nm_streq0(value, NM_L2TP_AUTHTYPE_TLS)) {

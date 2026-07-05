@@ -120,7 +120,7 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp.png</image>
+      <image width="800" height="608">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.4/appdata/l2tp.png</image>
     </screenshot>
     <screenshot>
       <caption>The IPsec options dialog</caption>
@@ -132,7 +132,7 @@
       <caption xml:lang="it">La finestra delle opzioni IPsec</caption>
       <caption xml:lang="fr">La boîte de dialogue des options IPsec</caption>
       <caption xml:lang="ar">حوار خيارات IPsec</caption>
-      <image width="800" height="676">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp-ipsec.png</image>
+      <image width="800" height="676">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.4/appdata/l2tp-ipsec.png</image>
     </screenshot>
     <screenshot>
       <caption>The PPP options dialog</caption>
@@ -144,7 +144,7 @@
       <caption xml:lang="it">La finestra delle opzioni PPP</caption>
       <caption xml:lang="fr">La boîte de dialogue des options PPP</caption>
       <caption xml:lang="ar">حوار خيارات PPP</caption>
-      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.2/appdata/l2tp-ppp.png</image>
+      <image width="800" height="738">https://raw.githubusercontent.com/nm-l2tp/NetworkManager-l2tp/1.52.4/appdata/l2tp-ppp.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://github.com/nm-l2tp/NetworkManager-l2tp</url>
